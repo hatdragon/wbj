@@ -16,7 +16,7 @@
 ## LoadOnDemand: 0
 
 embeds.xml
-WeatherBeatenJournal.lua
+core.lua
 
 # "to find fish you must look for them, one of the best places to look is in water"
 #               hmmmm.... that sounds fishy to me
