@@ -1,0 +1,29 @@
+## Interface: 90005
+## Title: Nat's weather-beaten fishing journal
+## Notes: "Teaches you the fine art of fish finding."
+## Version: v90005.1
+## Author: Hatdragon
+## eMail: hatdragon at gmail dot com
+## X-Category: Interface Enhancements
+## X-Donate: PayPal:hatdragon AT gmail DOT com
+## X-Curse-Project-ID: 
+## X-WoWI-ID: 
+## X-Date: 03/29/2021
+## X-Website: https://github.com/hatdragon/wbj
+## X-Feedback: https://github.com/hatdragon/wbj/issues
+## OptionalDependencies: 
+## SavedVariables: WeatherBeatenJournalDB
+## LoadOnDemand: 0
+
+embeds.xml
+WeatherBeatenJournal.lua
+
+# "to find fish you must look for them, one of the best places to look is in water"
+#               hmmmm.... that sounds fishy to me
+
+# Skill   | Base |  Variant Skill Line IDs
+# Fishing |	356	 |  2592	2591	2590	2589	2588	2587	2586	2585	2754
+
+
+#	[356] = "worldquest-icon-fishing",
+# From https://www.townlong-yak.com/framexml/36665/Constants.lua
