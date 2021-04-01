@@ -1,4 +1,6 @@
-## Interface: 90005
+# /run print((select(4, GetBuildInfo())));
+
+## Interface: 90005 
 ## Title: Nat's weather-beaten fishing journal
 ## Notes: "Teaches you the fine art of fish finding."
 ## Version: v90005.1
@@ -15,7 +17,9 @@
 ## SavedVariables: WeatherBeatenJournalDB
 ## LoadOnDemand: 0
 
+Taintless.xml
 embeds.xml
+journal.xml
 core.lua
 
 # "to find fish you must look for them, one of the best places to look is in water"
@@ -27,3 +31,5 @@ core.lua
 
 #	[356] = "worldquest-icon-fishing",
 # From https://www.townlong-yak.com/framexml/36665/Constants.lua
+
+
