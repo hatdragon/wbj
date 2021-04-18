@@ -21,6 +21,7 @@ Taintless.xml
 embeds.xml
 journal.xml
 core.lua
+fishingConsts.lua
 
 # "to find fish you must look for them, one of the best places to look is in water"
 #               hmmmm.... that sounds fishy to me
