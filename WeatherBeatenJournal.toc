@@ -1,29 +1,30 @@
-## Interface: 90005
-## Title: Nat's weather-beaten fishing journal
-## Notes: "Teaches you the fine art of fish finding."
-## Version: v90005.1
+## Interface: 120001
+## Title: Weather-Beaten Journal
+## Notes: A fishing companion — catch log, zone guide, and collectible tracker, all narrated by Azeroth's finest anglers.
 ## Author: Hatdragon
-## eMail: hatdragon at gmail dot com
-## X-Category: Interface Enhancements
-## X-Donate: PayPal:hatdragon AT gmail DOT com
-## X-Curse-Project-ID: 
-## X-WoWI-ID: 
-## X-Date: 03/29/2021
-## X-Website: https://github.com/hatdragon/wbj
-## X-Feedback: https://github.com/hatdragon/wbj/issues
-## OptionalDependencies: 
+## Version: 2.0.0
 ## SavedVariables: WeatherBeatenJournalDB
-## LoadOnDemand: 0
+## IconTexture: Interface\Icons\inv_misc_book_11
+## Category: Professions
 
-embeds.xml
-WeatherBeatenJournal.lua
+Core\Constants.lua
+Core\Util.lua
+Core\Schema.lua
+Core\Init.lua
 
-# "to find fish you must look for them, one of the best places to look is in water"
-#               hmmmm.... that sounds fishy to me
+Data\NarratorData.lua
+Data\FishData.lua
+Data\ZoneData.lua
+Data\AchievementData.lua
 
-# Skill   | Base |  Variant Skill Line IDs
-# Fishing |	356	 |  2592	2591	2590	2589	2588	2587	2586	2585	2754
+Tracking\CatchTracker.lua
 
+UI\Widgets.lua
+UI\NarratorPanel.lua
+UI\CatchLogView.lua
+UI\SpotGuideView.lua
+UI\CollectionView.lua
+UI\JournalFrame.lua
 
-#	[356] = "worldquest-icon-fishing",
-# From https://www.townlong-yak.com/framexml/36665/Constants.lua
+ProfessionTab\JournalPage.lua
+ProfessionTab\TabInjector.lua
