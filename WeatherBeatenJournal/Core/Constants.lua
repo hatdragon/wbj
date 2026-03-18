@@ -23,6 +23,7 @@ ns.FISHING_VARIANT_SKILL_LINES = {
     2754, -- Shadowlands
     2826, -- Dragonflight
     2871, -- TWW
+    2911, -- Midnight
 }
 
 -------------------------------------------------------------------------------
@@ -78,6 +79,7 @@ ns.SORT_RECENT    = "recent"
 ns.SORT_COUNT     = "count"
 ns.SORT_NAME      = "name"
 ns.SORT_RARITY    = "rarity"
+ns.SORT_UNLEARNED  = "unlearned"
 
 -------------------------------------------------------------------------------
 -- Item Quality Mapping

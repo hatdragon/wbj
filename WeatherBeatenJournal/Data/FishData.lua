@@ -410,6 +410,35 @@ FishData[228954] = { name = "Angler's Guide",               quality = RARE,     
 FishData[222534] = { name = "Kaheti Slum Shark",            quality = COMMON,   expansion = "TWW" }
 
 -------------------------------------------------------------------------------
+-- Midnight
+-------------------------------------------------------------------------------
+-- Common fish
+FishData[238371] = { name = "Arcane Wyrmfish",              quality = COMMON,   expansion = "Midnight" }
+FishData[238382] = { name = "Gore Guppy",                   quality = COMMON,   expansion = "Midnight" }
+FishData[238366] = { name = "Lynxfish",                     quality = COMMON,   expansion = "Midnight" }
+FishData[238367] = { name = "Root Crab",                    quality = COMMON,   expansion = "Midnight" }
+FishData[238365] = { name = "Sin'dorei Swarmer",            quality = COMMON,   expansion = "Midnight" }
+
+-- Uncommon fish
+FishData[238377] = { name = "Blood Hunter",                 quality = UNCOMMON, expansion = "Midnight" }
+FishData[238369] = { name = "Bloomtail Minnow",             quality = UNCOMMON, expansion = "Midnight" }
+FishData[238375] = { name = "Fungalskin Pike",              quality = UNCOMMON, expansion = "Midnight" }
+FishData[238372] = { name = "Restored Songfish",            quality = UNCOMMON, expansion = "Midnight" }
+FishData[238370] = { name = "Shimmer Spinefish",            quality = UNCOMMON, expansion = "Midnight" }
+FishData[238378] = { name = "Shimmersiren",                 quality = UNCOMMON, expansion = "Midnight" }
+FishData[238384] = { name = "Sunwell Fish",                 quality = UNCOMMON, expansion = "Midnight" }
+FishData[238374] = { name = "Tender Lumifin",               quality = UNCOMMON, expansion = "Midnight" }
+FishData[238368] = { name = "Twisted Tetra",                quality = UNCOMMON, expansion = "Midnight" }
+
+-- Rare fish
+FishData[238383] = { name = "Eversong Trout",               quality = RARE,     expansion = "Midnight" }
+FishData[238381] = { name = "Hollow Grouper",               quality = RARE,     expansion = "Midnight" }
+FishData[238376] = { name = "Lucky Loa",                    quality = RARE,     expansion = "Midnight" }
+FishData[238380] = { name = "Null Voidfish",                quality = RARE,     expansion = "Midnight" }
+FishData[238373] = { name = "Ominous Octopus",              quality = RARE,     expansion = "Midnight" }
+FishData[238379] = { name = "Warping Wise",                 quality = RARE,     expansion = "Midnight" }
+
+-------------------------------------------------------------------------------
 -- Helper: get fish info (fills from cache if name unknown)
 -------------------------------------------------------------------------------
 function ns.GetFishInfo(itemID)

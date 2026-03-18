@@ -77,6 +77,7 @@ local EXPANSION_ICONS = {
     Shadowlands   = "Interface\\Icons\\INV_Fishingpole_03",
     Dragonflight  = "Interface\\Icons\\Trade_Fishing",
     TWW           = "Interface\\Icons\\Trade_Fishing",
+    Midnight      = "Interface\\Icons\\Trade_Fishing",
 }
 
 function NarratorPanel:SetNarrator(narratorID, context)
@@ -131,4 +132,36 @@ end
 function NarratorPanel:SetForZone(mapID)
     local narratorID = ns.GetZoneNarrator(mapID)
     self:SetNarrator(narratorID, "spotGuide")
+end
+
+function NarratorPanel:SetFishFlavor(itemID)
+    if not panel then return end
+    local static = ns.FishData[itemID]
+    if not static then return end
+
+    panel:Show()
+
+    -- Use fish icon or recipe icon
+    local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+    if static.icon then
+        panel.portrait:SetTexture(static.icon)
+    elseif icon then
+        panel.portrait:SetTexture(icon)
+    else
+        panel.portrait:SetTexture("Interface\\Icons\\INV_Misc_Fish_02")
+    end
+    panel.portrait:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+    -- Fish name as "narrator name", category as title
+    panel.nameText:SetText(static.name or "")
+    panel.titleText:SetText(static.categoryName or static.expansion or "")
+
+    -- Flavor text as quote
+    if static.flavorText then
+        panel.quoteText:SetText("\226\128\156" .. static.flavorText .. "\226\128\157")
+    elseif static.special then
+        panel.quoteText:SetText(static.special.name .. ": " .. (static.special.effect or ""))
+    else
+        panel.quoteText:SetText("")
+    end
 end

@@ -10,6 +10,7 @@ WeatherBeatenJournal = ns
 -------------------------------------------------------------------------------
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 ns.eventFrame = eventFrame
 
 local callbacks = {}
@@ -25,7 +26,11 @@ function ns:RegisterCallback(event, fn)
 end
 
 eventFrame:SetScript("OnEvent", function(_, event, ...)
-    if event == "ADDON_LOADED" then
+    if event == "PLAYER_LOGIN" then
+        playerFaction = UnitFactionGroup("player")
+        selectedFaction = playerFaction
+        print("|cff00ff00[Weather Beaten Journal]|r Loaded! Type |cfffff000/wbj|r to open.")
+    elseif event == "ADDON_LOADED" then
         local loadedAddon = ...
         if loadedAddon == ADDON_NAME then
             ns.Schema:InitDB()
@@ -70,9 +75,12 @@ SlashCmdList["WBJ"] = function(msg)
             print(format("  Unique species: %d", db.sessions.uniqueSpecies))
             print(format("  Sessions: %d", db.sessions.totalSessions))
         end
-    else
-        print("|cff88ccffWeather-Beaten Journal|r v" .. ns.VERSION)
+    elseif msg == "help" then
+        print("|cff88ccffWeather-Beaten Journal|r Commands:")
         print("  /wbj stats  — Show fishing statistics")
         print("  /wbj reset  — Reset all data")
+        print("  /wbj help   — Show this help message")
+    else
+        C_TradeSkillUI.OpenTradeSkill(356)
     end
 end

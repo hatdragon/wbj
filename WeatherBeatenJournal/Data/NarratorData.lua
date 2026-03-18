@@ -37,6 +37,7 @@ ns.NARRATOR = {
     ALAN                = "alan",
     AULARRYNAR          = "aularrynar",
     TUSKARR_ELDER       = "tuskarr_elder",
+    DRATHEN             = "drathen",
 }
 
 local N = ns.NARRATOR
@@ -465,6 +466,27 @@ Narrators[N.TUSKARR_ELDER] = {
     },
 }
 
+Narrators[N.DRATHEN] = {
+    id = N.DRATHEN,
+    name = "Drathen",
+    title = "Fishing Trainer, Silvermoon City",
+    displayID = nil,
+    expansion = "Midnight",
+    quotes = {
+        spotGuide = {
+            "The waters of Quel'Thalas have changed since the Sunwell's restoration. New life stirs beneath the surface.",
+            "Eversong's pools are gentle, but Voidstorm's depths will test even a master angler.",
+        },
+        catchLog = {
+            "An impressive record. The sin'dorei tradition of careful documentation serves you well.",
+        },
+        default = {
+            "Welcome, angler. The waters of Quel'Thalas await your line.",
+            "Fishing is an art the sin'dorei have long appreciated. Let me guide you.",
+        },
+    },
+}
+
 -------------------------------------------------------------------------------
 -- Section default narrators
 -------------------------------------------------------------------------------
@@ -488,6 +510,7 @@ ns.EXPANSION_NARRATORS = {
     ["BFA"]           = N.ALAN,
     ["Shadowlands"]   = N.AULARRYNAR,
     ["Dragonflight"]  = N.TUSKARR_ELDER,
+    ["Midnight"]      = N.DRATHEN,
 }
 
 -------------------------------------------------------------------------------

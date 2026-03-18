@@ -92,6 +92,15 @@ local function BuildSortedList()
             if qa ~= qb then return qa > qb end
             return a.count > b.count
         end)
+    elseif sortMode == ns.SORT_UNLEARNED then
+        table.sort(sortedList, function(a, b)
+            local fa = ns.FishData[a.itemID]
+            local fb = ns.FishData[b.itemID]
+            local la = fa and fa.learned or false
+            local lb = fb and fb.learned or false
+            if la ~= lb then return not la end  -- unlearned first
+            return (a.name or "") < (b.name or "")
+        end)
     end
 end
 
@@ -152,7 +161,8 @@ function CatchLogView:Create(parent)
         { key = ns.SORT_RECENT, label = "Recent" },
         { key = ns.SORT_COUNT,  label = "Count" },
         { key = ns.SORT_NAME,   label = "Name" },
-        { key = ns.SORT_RARITY, label = "Rarity" },
+        { key = ns.SORT_RARITY,    label = "Rarity" },
+        { key = ns.SORT_UNLEARNED, label = "Unlearned" },
     }
 
     local sortButtons = {}
@@ -295,6 +305,14 @@ function CatchLogView:Create(parent)
 
         fr.zone:SetText(GetPrimaryZone(data.zones))
 
+        -- Learned checkmark
+        local static = ns.FishData[data.itemID]
+        if static and static.learned then
+            fr.learned:Show()
+        else
+            fr.learned:Hide()
+        end
+
         -- Tooltip on enter
         fr:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -307,6 +325,7 @@ function CatchLogView:Create(parent)
             if data.lastCaught then
                 GameTooltip:AddLine("Last caught: " .. ns.Util.FormatRelativeTime(data.lastCaught), 0.7, 0.7, 0.7)
             end
+            ns.Widgets:EnrichFishTooltip(data.itemID, nil)
             GameTooltip:Show()
         end)
         fr:SetScript("OnLeave", function()

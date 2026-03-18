@@ -84,6 +84,15 @@ function Widgets:CreateFishRow(parent)
     icon:SetPoint("LEFT", 4, 0)
     row.icon = icon
 
+    -- Learned checkmark overlay
+    local learned = row:CreateTexture(nil, "OVERLAY")
+    learned:SetSize(12, 12)
+    learned:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+    learned:SetAtlas("common-icon-checkmark")
+    learned:SetVertexColor(0.2, 0.8, 0.2)
+    learned:Hide()
+    row.learned = learned
+
     -- Name
     local name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     name:SetPoint("LEFT", icon, "RIGHT", 6, 0)
@@ -376,6 +385,69 @@ function Widgets:CreateSearchBox(parent, onTextChanged)
     end
 
     return container
+end
+
+-------------------------------------------------------------------------------
+-- Simple text label
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- Tooltip enrichment — adds FishData fields (flavor, special, pools, zones)
+-------------------------------------------------------------------------------
+function Widgets:EnrichFishTooltip(itemID, currentMapID)
+    local static = ns.FishData[itemID]
+    if not static then return end
+
+    -- Flavor text
+    if static.flavorText then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(static.flavorText, 0.9, 0.8, 0.5, true)
+    end
+
+    -- Special ability
+    if static.special then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("Special: " .. static.special.name, 0.2, 1.0, 0.2)
+        if static.special.effect and static.special.effect ~= "" then
+            GameTooltip:AddLine(static.special.effect, 0.8, 0.8, 0.8, true)
+        end
+    end
+
+    -- Fishing pools
+    if static.profPools then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("Fishing Pools:", 0.5, 0.8, 1.0)
+        for _, pool in ipairs(static.profPools) do
+            GameTooltip:AddLine("  " .. pool, 0.7, 0.7, 0.7)
+        end
+    end
+
+    -- Other zones (exclude current zone from list)
+    if static.profZones then
+        local others = {}
+        local currentZoneName = currentMapID and ns.ZoneData[currentMapID] and ns.ZoneData[currentMapID].name
+        for _, zoneName in ipairs(static.profZones) do
+            if zoneName ~= currentZoneName then
+                table.insert(others, zoneName)
+            end
+        end
+        if #others > 0 then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("Also found in:", 0.5, 0.8, 1.0)
+            for _, z in ipairs(others) do
+                GameTooltip:AddLine("  " .. z, 0.7, 0.7, 0.7)
+            end
+        end
+    end
+
+    -- Learned status
+    if static.learned ~= nil then
+        GameTooltip:AddLine(" ")
+        if static.learned then
+            GameTooltip:AddLine("Learned", 0.2, 0.8, 0.2)
+        else
+            GameTooltip:AddLine("Not yet learned", 0.8, 0.4, 0.4)
+        end
+    end
 end
 
 -------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120000, 120001
 ## Title: Weather-Beaten Journal
 ## Notes: A fishing companion — catch log, zone guide, and collectible tracker, all narrated by Azeroth's finest anglers.
 ## Author: Hatdragon
@@ -16,6 +16,8 @@ Data\NarratorData.lua
 Data\FishData.lua
 Data\ZoneData.lua
 Data\AchievementData.lua
+Data\GearData.lua
+Data\ProfessionDataProvider.lua
 
 Tracking\CatchTracker.lua
 

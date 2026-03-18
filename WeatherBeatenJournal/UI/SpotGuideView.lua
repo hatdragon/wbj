@@ -12,6 +12,7 @@ local selectedMapID = nil
 local zoneButtons = {}
 local isPopulated = false
 local filterText = nil
+local selectedExpansion = nil
 
 local function MatchesFilter(text, filter)
     if not filter or filter == "" then return true end
@@ -37,9 +38,48 @@ function SpotGuideView:Create(parent)
     leftBg:SetColorTexture(0.0, 0.0, 0.0, 0.25)
     view.leftPanel = leftPanel
 
+    -- Expansion filter dropdown (above zone scroll)
+    local expFilter = CreateFrame("Frame", "WBJExpDropdown", leftPanel, "UIDropDownMenuTemplate")
+    expFilter:SetPoint("TOPLEFT", -12, 2)
+    UIDropDownMenu_SetWidth(expFilter, 170)
+    UIDropDownMenu_SetText(expFilter, "All Expansions")
+
+    UIDropDownMenu_Initialize(expFilter, function(self, level)
+        local info = UIDropDownMenu_CreateInfo()
+
+        -- "All" option
+        info.text = "All Expansions"
+        info.checked = (selectedExpansion == nil)
+        info.func = function()
+            selectedExpansion = nil
+            UIDropDownMenu_SetText(expFilter, "All Expansions")
+            SpotGuideView:PopulateZoneTree()
+            SpotGuideView:RefreshRightPanel()
+        end
+        UIDropDownMenu_AddButton(info)
+
+        -- One entry per expansion
+        local expansions = { "Classic", "TBC", "WotLK", "Cataclysm", "MoP",
+                             "WoD", "Legion", "BFA", "Shadowlands",
+                             "Dragonflight", "TWW", "Midnight" }
+        for _, exp in ipairs(expansions) do
+            info = UIDropDownMenu_CreateInfo()
+            info.text = exp
+            info.checked = (selectedExpansion == exp)
+            info.func = function()
+                selectedExpansion = exp
+                UIDropDownMenu_SetText(expFilter, exp)
+                SpotGuideView:PopulateZoneTree()
+                SpotGuideView:RefreshRightPanel()
+            end
+            UIDropDownMenu_AddButton(info)
+        end
+    end)
+    view.expFilter = expFilter
+
     -- Zone scroll area
     local zoneScroll = CreateFrame("Frame", nil, leftPanel, "WowScrollBoxList")
-    zoneScroll:SetPoint("TOPLEFT", 2, -2)
+    zoneScroll:SetPoint("TOPLEFT", 2, -28)
     zoneScroll:SetPoint("BOTTOMRIGHT", -2, 2)
 
     local zoneScrollBar = CreateFrame("EventFrame", nil, leftPanel, "MinimalScrollBar")
@@ -69,12 +109,6 @@ function SpotGuideView:Create(parent)
             row.selected:SetColorTexture(0.4, 0.35, 0.2, 0.35)
             row.selected:Hide()
 
-            row.caughtDot = row.btn:CreateTexture(nil, "ARTWORK")
-            row.caughtDot:SetSize(8, 8)
-            row.caughtDot:SetPoint("RIGHT", -6, 0)
-            row.caughtDot:SetColorTexture(0.2, 0.8, 0.2, 0.8)
-            row.caughtDot:Hide()
-
             row.isInitialized = true
         end
 
@@ -85,7 +119,6 @@ function SpotGuideView:Create(parent)
             row.label:SetTextColor(0.85, 0.70, 0.40, 1)  -- warm gold, visible on dark bg
             row.btn:SetScript("OnClick", nil)
             row.selected:Hide()
-            row.caughtDot:Hide()
         else
             -- Zone entry
             row.label:SetText("  " .. data.name)
@@ -98,22 +131,6 @@ function SpotGuideView:Create(parent)
             else
                 row.label:SetTextColor(0.80, 0.75, 0.60, 1)  -- light tan on dark bg
                 row.selected:Hide()
-            end
-
-            -- Check if player has caught anything here
-            local hasCatches = false
-            if ns.db and ns.db.totals then
-                for _, entry in pairs(ns.db.totals) do
-                    if entry.zones and entry.zones[data.mapID] then
-                        hasCatches = true
-                        break
-                    end
-                end
-            end
-            if hasCatches then
-                row.caughtDot:Show()
-            else
-                row.caughtDot:Hide()
             end
 
             row.btn:SetScript("OnClick", function()
@@ -157,7 +174,7 @@ function SpotGuideView:Create(parent)
     fishHeader:SetPoint("RIGHT", -4, 0)
     view.fishHeader = fishHeader
 
-    -- Fish scroll list
+    -- Fish + gear scroll list (unified data provider with type field)
     local fishList = ns.Widgets:CreateScrollList(rightPanel, 28, function(row, data)
         if not row.isInitialized then
             local fishRow = ns.Widgets:CreateFishRow(row)
@@ -167,6 +184,58 @@ function SpotGuideView:Create(parent)
         end
 
         local fr = row.fishRow
+
+        if data.type == "gear_header" then
+            -- Section header row rendered inline
+            fr.icon:SetTexture(nil)
+            fr.name:SetText("|cFFD9C080== " .. data.text .. " ==|r")
+            fr.name:SetTextColor(0.85, 0.75, 0.50)
+            fr.count:SetText("")
+            fr.zone:SetText("")
+            fr.learned:Hide()
+            fr:SetScript("OnEnter", nil)
+            fr:SetScript("OnLeave", nil)
+            return
+        end
+
+        if data.type == "gear" then
+            -- Gear item row (bait or lure)
+            fr.learned:Hide()
+            local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(data.itemID)
+            fr.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+            fr.name:SetText(data.name)
+            fr.name:SetTextColor(0.40, 0.80, 1.0)  -- blue tint for gear
+
+            if data.category == "Summon" then
+                fr.count:SetText("Use")
+                fr.count:SetTextColor(0.70, 0.50, 0.90)
+                fr.zone:SetText("Attracts " .. (data.targetFish or ""))
+                fr.zone:SetTextColor(0.7, 0.7, 0.7)
+            elseif data.category == "Bait" then
+                fr.count:SetText("Bait")
+                fr.count:SetTextColor(0.60, 0.80, 0.40)
+                fr.zone:SetText(data.targetFish or "")
+                fr.zone:SetTextColor(0.7, 0.7, 0.7)
+            else
+                fr.count:SetText("Lure")
+                fr.count:SetTextColor(0.80, 0.65, 0.40)
+                fr.zone:SetText(data.skillBonus and ("+" .. data.skillBonus .. " skill") or "")
+                fr.zone:SetTextColor(0.7, 0.7, 0.7)
+            end
+
+            -- Tooltip
+            fr:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetItemByID(data.itemID)
+                GameTooltip:Show()
+            end)
+            fr:SetScript("OnLeave", function()
+                GameTooltip:Hide()
+            end)
+            return
+        end
+
+        -- Default: fish row
         local static = ns.FishData[data.itemID]
         local name = static and static.name or ("Item #" .. data.itemID)
         local quality = static and static.quality or Enum.ItemQuality.Common
@@ -201,6 +270,13 @@ function SpotGuideView:Create(parent)
             fr.zone:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
         end
 
+        -- Learned checkmark
+        if static and static.learned then
+            fr.learned:Show()
+        else
+            fr.learned:Hide()
+        end
+
         -- Tooltip
         fr:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -209,10 +285,18 @@ function SpotGuideView:Create(parent)
                 GameTooltip:AddLine(" ")
                 GameTooltip:AddLine(format("Caught here: %d | Total: %d", caughtHere, caughtTotal), 0.2, 0.8, 0.2)
             end
+            ns.Widgets:EnrichFishTooltip(data.itemID, selectedMapID)
             GameTooltip:Show()
+            -- Show fish flavor in narrator panel
+            if ns.NarratorPanel and static and static.flavorText then
+                ns.NarratorPanel:SetFishFlavor(data.itemID)
+            end
         end)
         fr:SetScript("OnLeave", function()
             GameTooltip:Hide()
+            if ns.NarratorPanel then
+                ns.NarratorPanel:SetForZone(selectedMapID)
+            end
         end)
     end)
     fishList:SetPoint("TOPLEFT", fishHeader, "BOTTOMLEFT", 0, -2)
@@ -243,34 +327,37 @@ function SpotGuideView:PopulateZoneTree(preserveScroll)
     local firstMatchMapID = nil
     for _, contName in ipairs(order) do
         local cont = continents[contName]
-        -- When filtering, only show continents that have matching zones
-        if filterText and filterText ~= "" then
-            local matchingZones = {}
-            for _, zone in ipairs(cont.zones) do
-                if MatchesFilter(zone.name, filterText) then
-                    table.insert(matchingZones, zone)
-                    if not firstMatchMapID then
-                        firstMatchMapID = zone.mapID
-                    end
+        local matchingZones = {}
+
+        for _, zone in ipairs(cont.zones) do
+            -- Apply expansion filter per zone (text filter applies to fish, not zones)
+            local expMatch = not selectedExpansion or zone.expansion == selectedExpansion
+            if expMatch then
+                table.insert(matchingZones, zone)
+                if not firstMatchMapID then
+                    firstMatchMapID = zone.mapID
                 end
             end
-            if #matchingZones > 0 then
-                dp:Insert({ isHeader = true, name = cont.name })
-                for _, zone in ipairs(matchingZones) do
-                    dp:Insert({ isHeader = false, name = zone.name, mapID = zone.mapID })
-                end
-            end
-        else
+        end
+
+        if #matchingZones > 0 then
             dp:Insert({ isHeader = true, name = cont.name })
-            for _, zone in ipairs(cont.zones) do
+            for _, zone in ipairs(matchingZones) do
                 dp:Insert({ isHeader = false, name = zone.name, mapID = zone.mapID })
             end
         end
     end
 
-    -- Auto-select first matching zone when filtering
-    if filterText and filterText ~= "" and firstMatchMapID then
-        if selectedMapID ~= firstMatchMapID then
+    -- Auto-select first visible zone when expansion filter hides current selection
+    if selectedExpansion and firstMatchMapID then
+        local selectionVisible = false
+        if selectedMapID then
+            local zone = ns.ZoneData[selectedMapID]
+            if zone then
+                selectionVisible = zone.expansion == selectedExpansion
+            end
+        end
+        if not selectionVisible then
             selectedMapID = firstMatchMapID
             self:RefreshRightPanel()
         end
@@ -333,6 +420,47 @@ function SpotGuideView:RefreshRightPanel()
         if MatchesFilter(fishName, filterText) then
             dp:Insert({ itemID = itemID })
             visibleCount = visibleCount + 1
+        end
+    end
+
+    -- Append gear section (baits + lures) if any match this zone
+    local gear = ns.GetZoneGear(selectedMapID)
+    if #gear > 0 and (not filterText or filterText == "") then
+        dp:Insert({ type = "gear_header", text = "Useful Gear" })
+        for _, g in ipairs(gear) do
+            dp:Insert({
+                type = "gear",
+                itemID = g.itemID,
+                name = g.name,
+                category = g.category,
+                targetFish = g.targetFish,
+                skillBonus = g.skillBonus,
+            })
+        end
+    elseif #gear > 0 and filterText and filterText ~= "" then
+        -- Filter gear items too when searching
+        local gearMatches = false
+        for _, g in ipairs(gear) do
+            if MatchesFilter(g.name, filterText) then
+                gearMatches = true
+                break
+            end
+        end
+        if gearMatches then
+            dp:Insert({ type = "gear_header", text = "Useful Gear" })
+            for _, g in ipairs(gear) do
+                if MatchesFilter(g.name, filterText) then
+                    dp:Insert({
+                        type = "gear",
+                        itemID = g.itemID,
+                        name = g.name,
+                        category = g.category,
+                        targetFish = g.targetFish,
+                        skillBonus = g.skillBonus,
+                    })
+                    visibleCount = visibleCount + 1
+                end
+            end
         end
     end
 

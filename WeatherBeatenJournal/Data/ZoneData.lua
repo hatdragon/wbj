@@ -190,6 +190,19 @@ ZoneData[627] = { name = "Dalaran (Broken Isles)", continent = "Broken Isles", e
     notes = "Conjurer Margoss's island is accessible from the Underbelly." }
 
 -------------------------------------------------------------------------------
+-- Legion — Argus
+-------------------------------------------------------------------------------
+ZoneData[830] = { name = "Krokuun",            continent = "Argus", expansion = "Legion", narratorID = N.CONJURER_MARGOSS,
+    fish = {},
+    notes = "Argus waters yield only vendor trash. Pond Nettle mount is a rare catch from fel-tainted pools." }
+ZoneData[885] = { name = "Antoran Wastes",     continent = "Argus", expansion = "Legion", narratorID = N.CONJURER_MARGOSS,
+    fish = {},
+    notes = "Argus waters yield only vendor trash. Pond Nettle mount is a rare catch from fel-tainted pools." }
+ZoneData[882] = { name = "Mac'Aree",           continent = "Argus", expansion = "Legion", narratorID = N.CONJURER_MARGOSS,
+    fish = {},
+    notes = "Argus waters yield only vendor trash. Pond Nettle mount is a rare catch from fel-tainted pools." }
+
+-------------------------------------------------------------------------------
 -- BFA
 -------------------------------------------------------------------------------
 ZoneData[895] = { name = "Tiragarde Sound",      continent = "Kul Tiras", expansion = "BFA", narratorID = N.ALAN,
@@ -225,8 +238,8 @@ ZoneData[1565] = { name = "Ardenweald",          continent = "Shadowlands", expa
 ZoneData[1543] = { name = "The Maw",             continent = "Shadowlands", expansion = "Shadowlands", narratorID = N.AULARRYNAR,
     fish = { 173032, 173036 } }
 ZoneData[1970] = { name = "Zereth Mortis",        continent = "Shadowlands", expansion = "Shadowlands", narratorID = N.AULARRYNAR,
-    fish = { 173032, 173034, 187702, 187872 },
-    notes = "The Pond Nettle mount can be fished here." }
+    fish = { 173032, 173034, 187702 },
+    notes = "Deepstar Aurelid mount obtained by defeating Hirukon with Aurelid Lure (fished Strange Goop)." }
 
 -------------------------------------------------------------------------------
 -- Dragonflight — Dragon Isles
@@ -261,6 +274,26 @@ ZoneData[2346] = { name = "Undermine",           continent = "Khaz Algar", expan
     notes = "The \"Gold\" Fish is unique to Undermine waters." }
 
 -------------------------------------------------------------------------------
+-- Midnight — Quel'Thalas
+-------------------------------------------------------------------------------
+ZoneData[2395] = { name = "Eversong Woods",     continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238371, 238366, 238365, 238370, 238372, 238384, 238383 },
+    notes = "Starting fishing zone. Drathen trains Midnight Fishing near the pond in Silvermoon." }
+ZoneData[2393] = { name = "Silvermoon City",     continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238371, 238366, 238365, 238370 } }
+ZoneData[2437] = { name = "Zul'Aman",            continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238382, 238366, 238365, 238367, 238377, 238375, 238368, 238376 },
+    notes = "Lucky Loa from Obscured School and Surface Ripple pools. Blood Hunter spawns a hostile spirit." }
+ZoneData[2413] = { name = "Harandar",             continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238371, 238367, 238370, 238372, 238369, 238375, 238374, 238368 },
+    notes = "Tender Lumifin exclusive to Harandar. Bioluminescent underground jungle." }
+ZoneData[2405] = { name = "Voidstorm",            continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238377, 238378, 238380, 238373, 238381, 238379 },
+    notes = "Endgame fishing zone. Oceanic Vortex pools for rare catches. Warping Wise teleports to random Midnight zones." }
+ZoneData[2424] = { name = "Isle of Quel'Danas",  continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
+    fish = { 238371, 238366, 238370, 238384 } }
+
+-------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
 
@@ -268,7 +301,7 @@ ZoneData[2346] = { name = "Undermine",           continent = "Khaz Algar", expan
 local EXPANSION_ORDER = {
     Classic = 1, TBC = 2, WotLK = 3, Cataclysm = 4,
     MoP = 5, WoD = 6, Legion = 7, BFA = 8,
-    Shadowlands = 9, Dragonflight = 10, TWW = 11,
+    Shadowlands = 9, Dragonflight = 10, TWW = 11, Midnight = 12,
 }
 
 function ns.GetZonesByContinent()
@@ -313,6 +346,45 @@ function ns.GetZoneFish(mapID)
     local zone = ZoneData[mapID]
     if not zone then return {} end
     return zone.fish or {}
+end
+
+function ns.GetZoneGear(mapID)
+    local zone = ZoneData[mapID]
+    if not zone then return {} end
+    local gear = {}
+    local exp = zone.expansion
+
+    -- Collect fish names for this zone (for bait matching)
+    local fishNames = {}
+    for _, itemID in ipairs(zone.fish or {}) do
+        local f = ns.FishData[itemID]
+        if f then fishNames[f.name] = true end
+    end
+
+    -- Baits: match by targetFish in zone fish list, or by explicit mapIDs
+    for _, bait in ipairs(ns.GearData.BAITS) do
+        if bait.expansion == exp then
+            local match = fishNames[bait.targetFish] or (bait.mapIDs and bait.mapIDs[mapID])
+            if match then
+                local category = bait.usage == "summon" and "Summon" or "Bait"
+                table.insert(gear, { itemID = bait.itemID, name = bait.name, category = category, targetFish = bait.targetFish })
+            end
+        end
+    end
+
+    -- Lures: show expansion-matching lures for Classic through WoD
+    local LURE_EXPANSIONS = { Classic = true, TBC = true, WotLK = true, Cataclysm = true, MoP = true, WoD = true }
+    if LURE_EXPANSIONS[exp] then
+        for _, lure in ipairs(ns.GearData.LURES) do
+            local lureOrder = EXPANSION_ORDER[lure.expansion] or 99
+            local zoneOrder = EXPANSION_ORDER[exp] or 99
+            if lureOrder <= zoneOrder then
+                table.insert(gear, { itemID = lure.itemID, name = lure.name, category = "Lure", skillBonus = lure.skillBonus })
+            end
+        end
+    end
+
+    return gear
 end
 
 function ns.GetZoneNarrator(mapID)

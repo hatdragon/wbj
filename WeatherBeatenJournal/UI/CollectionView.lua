@@ -37,21 +37,29 @@ function CollectionView:Create(parent)
     listView:SetElementExtent(28)
     listView:SetElementInitializer("Frame", function(row, data)
         if not row.isInitialized then
-            -- Reusable row setup
+            -- Reusable row setup — use Button for clickable rows
+            row:EnableMouse(true)
+
             row.icon = row:CreateTexture(nil, "ARTWORK")
             row.icon:SetSize(22, 22)
             row.icon:SetPoint("LEFT", 4, 0)
 
             row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
             row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
-            row.label:SetPoint("RIGHT", -80, 0)
+            row.label:SetPoint("RIGHT", -98, 0)
             row.label:SetJustifyH("LEFT")
             row.label:SetWordWrap(false)
 
             row.status = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
             row.status:SetPoint("RIGHT", -4, 0)
-            row.status:SetWidth(72)
+            row.status:SetWidth(90)
             row.status:SetJustifyH("RIGHT")
+            row.status:SetWordWrap(false)
+
+            row.factionIcon = row:CreateTexture(nil, "OVERLAY")
+            row.factionIcon:SetSize(16, 16)
+            row.factionIcon:SetPoint("RIGHT", row.status, "LEFT", -4, 0)
+            row.factionIcon:Hide()
 
             row.hl = row:CreateTexture(nil, "HIGHLIGHT")
             row.hl:SetAllPoints()
@@ -61,6 +69,14 @@ function CollectionView:Create(parent)
         end
 
         -- Render based on data type
+        -- Clear click handler (may be stale from recycled achievement row)
+        row:SetScript("OnMouseUp", nil)
+        row.factionIcon:Hide()
+
+        -- Reset status width (may have been widened by rarefish row)
+        row.status:SetWidth(90)
+        row.label:SetPoint("RIGHT", -98, 0)
+
         if data.type == "header" then
             row.icon:Hide()
             row.label:SetPoint("LEFT", 4, 0)
@@ -69,7 +85,30 @@ function CollectionView:Create(parent)
             row.label:SetText(data.text)
             row.status:SetText(data.progress or "")
             row.status:SetTextColor(ns.COLORS.HEADER_TEXT:GetRGBA())
-            row.hl:Hide()
+            if data.achievementID then
+                row.hl:Show()
+                row:SetScript("OnMouseUp", function(self, button)
+                    if button == "LeftButton" then
+                        if not AchievementFrame then
+                            C_AddOns.LoadAddOn("Blizzard_AchievementUI")
+                        end
+                        if AchievementFrame then
+                            ShowUIPanel(AchievementFrame)
+                            AchievementFrame_SelectAchievement(data.achievementID, true)
+                        end
+                    end
+                end)
+                row:SetScript("OnEnter", function(self)
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetHyperlink(format("achievement:%d", data.achievementID))
+                    GameTooltip:Show()
+                end)
+                row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            else
+                row.hl:Hide()
+                row:SetScript("OnEnter", nil)
+                row:SetScript("OnLeave", nil)
+            end
         elseif data.type == "achievement" then
             row.icon:Show()
             row.icon:SetTexture("Interface\\Icons\\Achievement_General")
@@ -88,6 +127,15 @@ function CollectionView:Create(parent)
                 row.status:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
             end
 
+            -- Faction emblem
+            if data.faction == "Alliance" then
+                row.factionIcon:SetAtlas("questlog-questtypeicon-alliance")
+                row.factionIcon:Show()
+            elseif data.faction == "Horde" then
+                row.factionIcon:SetAtlas("questlog-questtypeicon-horde")
+                row.factionIcon:Show()
+            end
+
             -- Tooltip
             row:SetScript("OnEnter", function(self)
                 if data.achievementID then
@@ -97,6 +145,18 @@ function CollectionView:Create(parent)
                 end
             end)
             row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            -- Click to open achievement panel
+            row:SetScript("OnMouseUp", function(self, button)
+                if button == "LeftButton" and data.achievementID then
+                    if not AchievementFrame then
+                        C_AddOns.LoadAddOn("Blizzard_AchievementUI")
+                    end
+                    if AchievementFrame then
+                        ShowUIPanel(AchievementFrame)
+                        AchievementFrame_SelectAchievement(data.achievementID, true)
+                    end
+                end
+            end)
         elseif data.type == "mount" then
             row.icon:Show()
             local mIcon = data.icon and data.icon ~= 0 and data.icon or "Interface\\Icons\\Trade_Fishing"
@@ -112,7 +172,7 @@ function CollectionView:Create(parent)
                 row.status:SetTextColor(ns.COLORS.CAUGHT:GetRGBA())
             else
                 row.label:SetTextColor(ns.COLORS.PARCHMENT_TEXT:GetRGBA())
-                row.status:SetText(data.source or "")
+                row.status:SetText("Not Collected")
                 row.status:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
             end
 
@@ -120,9 +180,19 @@ function CollectionView:Create(parent)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(data.name, 1, 1, 1)
                 GameTooltip:AddLine(data.zones or data.source or "", 0.7, 0.7, 0.7, true)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Click to preview", 0.5, 0.8, 1.0)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            row:SetScript("OnMouseUp", function(self, button)
+                if button == "LeftButton" and data.spellID then
+                    local mountID = C_MountJournal.GetMountFromSpell(data.spellID)
+                    if mountID then
+                        DressUpMount(mountID)
+                    end
+                end
+            end)
         elseif data.type == "pet" then
             row.icon:Show()
             local pIcon = data.icon and data.icon ~= 0 and data.icon or "Interface\\Icons\\INV_Pet_BabyBlizzardBear"
@@ -138,7 +208,7 @@ function CollectionView:Create(parent)
                 row.status:SetTextColor(ns.COLORS.CAUGHT:GetRGBA())
             else
                 row.label:SetTextColor(ns.COLORS.PARCHMENT_TEXT:GetRGBA())
-                row.status:SetText(data.source or "")
+                row.status:SetText("Not Collected")
                 row.status:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
             end
 
@@ -146,9 +216,19 @@ function CollectionView:Create(parent)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(data.name, 1, 1, 1)
                 GameTooltip:AddLine(data.source or "", 0.7, 0.7, 0.7, true)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Click to preview", 0.5, 0.8, 1.0)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            row:SetScript("OnMouseUp", function(self, button)
+                if button == "LeftButton" and data.speciesID then
+                    local _, _, _, creatureID, _, _, _, _, _, _, _, displayID = C_PetJournal.GetPetInfoBySpeciesID(data.speciesID)
+                    if creatureID and displayID then
+                        DressUpBattlePet(creatureID, displayID, data.speciesID)
+                    end
+                end
+            end)
         elseif data.type == "toy" then
             row.icon:Show()
             row.icon:SetTexture("Interface\\Icons\\Trade_Fishing")
@@ -163,7 +243,7 @@ function CollectionView:Create(parent)
                 row.status:SetTextColor(ns.COLORS.CAUGHT:GetRGBA())
             else
                 row.label:SetTextColor(ns.COLORS.PARCHMENT_TEXT:GetRGBA())
-                row.status:SetText(data.source or "")
+                row.status:SetText("Not Collected")
                 row.status:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
             end
 
@@ -198,6 +278,46 @@ function CollectionView:Create(parent)
                 GameTooltip:SetText(data.name, 1, 1, 1)
                 if data.description then
                     GameTooltip:AddLine(data.description, 0.7, 0.7, 0.7, true)
+                end
+                GameTooltip:Show()
+            end)
+            row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        elseif data.type == "rarefish" then
+            row.icon:Show()
+            local icon = C_Item.GetItemIconByID(data.itemID)
+            row.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_Fish_02")
+            row.label:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+            row.label:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
+            row.label:SetText(data.name)
+            row.hl:Show()
+            -- Wider status column for bait names
+            row.status:SetWidth(160)
+            row.label:SetPoint("RIGHT", -168, 0)
+
+            if data.caught then
+                row.label:SetTextColor(ns.COLORS.CAUGHT:GetRGBA())
+                row.status:SetText("Caught")
+                row.status:SetTextColor(ns.COLORS.CAUGHT:GetRGBA())
+            else
+                row.label:SetTextColor(ns.COLORS.PARCHMENT_TEXT:GetRGBA())
+                if data.baitName then
+                    row.status:SetText("Use: " .. data.baitName)
+                else
+                    row.status:SetText("Arcane Lure")
+                end
+                row.status:SetTextColor(ns.COLORS.UNCAUGHT:GetRGBA())
+            end
+
+            row:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetItemByID(data.itemID)
+                if not data.caught then
+                    GameTooltip:AddLine(" ")
+                    if data.baitName then
+                        GameTooltip:AddLine("Bait: " .. data.baitName, 1, 0.82, 0)
+                    else
+                        GameTooltip:AddLine("Use Arcane Lure to increase catch chance", 1, 0.82, 0)
+                    end
                 end
                 GameTooltip:Show()
             end)
@@ -254,6 +374,7 @@ local function AddCategoryAchievements(items, category, showExpansion)
                 name = name,
                 achievementID = ach.id,
                 completed = ns.IsAchievementCompleted(ach.id),
+                faction = ach.faction,
             })
         end
     end
@@ -268,6 +389,7 @@ local function BuildCollectionData()
         type = "header",
         text = "\"Salty\" — Accomplished Angler",
         progress = format("%d/%d", saltyDone, saltyTotal),
+        achievementID = 1516,
     })
     AddCategoryAchievements(items, "salty")
 
@@ -300,6 +422,7 @@ local function BuildCollectionData()
             zones = m.zones,
             collected = collected,
             icon = icon,
+            spellID = m.spellID,
         })
     end
 
@@ -320,12 +443,13 @@ local function BuildCollectionData()
             source = p.source,
             collected = ns.IsPetCollected(p.speciesID),
             icon = ns.GetPetIcon(p.speciesID, p.itemID),
+            speciesID = p.speciesID,
         })
     end
 
     -- === Toys ===
-    local toyCount, toyTotal = 0, #ns.AchievementData.TOYS
-    for _, t in ipairs(ns.AchievementData.TOYS) do
+    local toyCount, toyTotal = 0, #ns.GearData.TOYS
+    for _, t in ipairs(ns.GearData.TOYS) do
         if ns.IsToyCollected(t.itemID) then toyCount = toyCount + 1 end
     end
     table.insert(items, {
@@ -333,7 +457,7 @@ local function BuildCollectionData()
         text = "Fishing Toys",
         progress = format("%d/%d", toyCount, toyTotal),
     })
-    for _, t in ipairs(ns.AchievementData.TOYS) do
+    for _, t in ipairs(ns.GearData.TOYS) do
         table.insert(items, {
             type = "toy",
             name = t.name,
@@ -351,8 +475,9 @@ local function BuildCollectionData()
     local drDone, drTotal = CountCategory("draenor_zone")
     table.insert(items, {
         type = "header",
-        text = "Draenor Zone Anglers",
+        text = "Draenor Angler",
         progress = format("%d/%d", drDone, drTotal),
+        achievementID = 9462,
     })
     AddCategoryAchievements(items, "draenor_zone")
 
@@ -360,8 +485,9 @@ local function BuildCollectionData()
     local dailyDone, dailyTotal = CountCategory("daily")
     table.insert(items, {
         type = "header",
-        text = "Fishing Daily Quests",
+        text = "Gone Fishin'",
         progress = format("%d/%d", dailyDone, dailyTotal),
+        achievementID = 5851,
     })
     AddCategoryAchievements(items, "daily")
 
@@ -369,8 +495,9 @@ local function BuildCollectionData()
     local coinDone, coinTotal = CountCategory("fountain")
     table.insert(items, {
         type = "header",
-        text = "Dalaran Fountain Coins",
+        text = "The Coin Master",
         progress = format("%d/%d", coinDone, coinTotal),
+        achievementID = 2096,
     })
     AddCategoryAchievements(items, "fountain")
 
@@ -393,26 +520,90 @@ local function BuildCollectionData()
     AddCategoryAchievements(items, "catch_count")
 
     -- === Underlight Angler ===
-    table.insert(items, { type = "header", text = "Underlight Angler (Legion)" })
-    table.insert(items, {
-        type = "achievement",
-        name = "Bigger Fish to Fry (Prerequisite)",
-        achievementID = ns.AchievementData.UNDERLIGHT_ANGLER.achievementID,
-        completed = ns.IsAchievementCompleted(ns.AchievementData.UNDERLIGHT_ANGLER.achievementID),
-    })
-    for _, quest in ipairs(ns.AchievementData.UNDERLIGHT_ANGLER.questline) do
-        table.insert(items, {
-            type = "quest",
-            name = quest.name,
-            description = quest.description,
-            completed = ns.IsQuestCompleted(quest.questID),
-        })
+    local ua = ns.AchievementData.UNDERLIGHT_ANGLER
+    local hasPole = ns.IsQuestCompleted(41010)
+
+    -- Count total caught rare fish
+    local totalCaught = 0
+    for _, zoneGroup in ipairs(ua.rareFish) do
+        for _, fish in ipairs(zoneGroup.fish) do
+            if ns.db and ns.db.totals and ns.db.totals[fish.itemID] then
+                totalCaught = totalCaught + 1
+            end
+        end
     end
-    table.insert(items, { type = "info", text = "Traits:" })
-    for _, trait in ipairs(ns.AchievementData.UNDERLIGHT_ANGLER.traits) do
+
+    table.insert(items, {
+        type = "header",
+        text = "Underlight Angler (Legion)",
+        progress = format("%d/18", totalCaught),
+        achievementID = ua.achievementID,
+    })
+
+    if hasPole then
+        table.insert(items, { type = "info", text = "Obtained! You own the Underlight Angler." })
+    else
+        -- Achievement row
+        table.insert(items, {
+            type = "achievement",
+            name = "Bigger Fish to Fry",
+            achievementID = ua.achievementID,
+            completed = ns.IsAchievementCompleted(ua.achievementID),
+        })
+
+        -- Arcane Lure tip
         table.insert(items, {
             type = "info",
-            text = format("  %s — %s", trait.name, trait.description),
+            text = format("  %s — doubles rare bait chance for 10 min (%s)", ua.arcaneLure.name, ua.arcaneLure.source),
+        })
+
+        -- Tips
+        for _, tip in ipairs(ua.tips) do
+            table.insert(items, { type = "info", text = "  " .. tip })
+        end
+
+        -- Zone-by-zone rare fish checklist
+        for _, zoneGroup in ipairs(ua.rareFish) do
+            local zoneCaught = 0
+            for _, fish in ipairs(zoneGroup.fish) do
+                if ns.db and ns.db.totals and ns.db.totals[fish.itemID] then
+                    zoneCaught = zoneCaught + 1
+                end
+            end
+            table.insert(items, {
+                type = "info",
+                text = format("  %s (%d/%d)", zoneGroup.zone, zoneCaught, #zoneGroup.fish),
+            })
+            for _, fish in ipairs(zoneGroup.fish) do
+                local caught = ns.db and ns.db.totals and ns.db.totals[fish.itemID] ~= nil
+                table.insert(items, {
+                    type = "rarefish",
+                    name = fish.name,
+                    itemID = fish.itemID,
+                    baitName = fish.baitName,
+                    caught = caught,
+                })
+            end
+        end
+
+        -- Questline
+        table.insert(items, { type = "info", text = "  Questline:" })
+        for _, quest in ipairs(ua.questline) do
+            table.insert(items, {
+                type = "quest",
+                name = quest.name,
+                description = quest.description,
+                completed = ns.IsQuestCompleted(quest.questID),
+            })
+        end
+    end
+
+    -- Traits (always shown)
+    table.insert(items, { type = "info", text = "  Traits:" })
+    for _, trait in ipairs(ua.traits) do
+        table.insert(items, {
+            type = "info",
+            text = format("    %s — %s", trait.name, trait.description),
         })
     end
 
