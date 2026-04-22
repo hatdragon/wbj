@@ -38,6 +38,7 @@ ns.NARRATOR = {
     AULARRYNAR          = "aularrynar",
     TUSKARR_ELDER       = "tuskarr_elder",
     DRATHEN             = "drathen",
+    DEPTHDIVER_JEJU     = "depthdiver_jeju",
 }
 
 local N = ns.NARRATOR
@@ -483,6 +484,28 @@ Narrators[N.DRATHEN] = {
         default = {
             "Welcome, angler. The waters of Quel'Thalas await your line.",
             "Fishing is an art the sin'dorei have long appreciated. Let me guide you.",
+        },
+    },
+}
+
+Narrators[N.DEPTHDIVER_JEJU] = {
+    id = N.DEPTHDIVER_JEJU,
+    name = "Depthdiver Jeju",
+    title = "Abyss Anglers Dive Master, Zul'Aman",
+    displayID = nil,
+    expansion = "Midnight",
+    quotes = {
+        spotGuide = {
+            "The depths off Zul'Aman's coast hold treasures no fishing rod can reach. You'll need a harpoon down there.",
+            "Deeper waters, rarer catches. Upgrade your gear if you want to see what lurks below the trench.",
+        },
+        catchLog = {
+            "Every pearl earned is a dive well spent. The depths reward the persistent.",
+        },
+        default = {
+            "Ready for another dive? The Abyss won't fish itself.",
+            "Gear up, breathe deep, and aim true. That's all there is to it.",
+            "The creatures down there aren't going to harpoon themselves. Well, except the Brakpuffers. They mostly harpoon you.",
         },
     },
 }

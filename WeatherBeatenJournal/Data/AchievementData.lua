@@ -154,6 +154,56 @@ AchievementData.ACHIEVEMENTS = {
     { id = 40539, name = "The Derby Dash",               description = "Catch all 20 Algari fish during the Hallowfall Fishing Derby.", category = "expansion", expansion = "TWW" },
 
     -- ================================================================
+    -- Expansion Achievements — Midnight: Abyss Anglers
+    -- ================================================================
+
+    -- Diving (11) — dive mechanics, breath, points, traversal
+    { id = 62218, name = "Abyss Anglers: Even The Best",           description = "Run out of breath during an Abyss Anglers dive.",                        category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62220, name = "Abyss Anglers: Proper Procedure",        description = "Exit an Abyss Anglers dive by swimming to the surface.",                 category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62774, name = "Abyss Anglers: Not Done Yet",            description = "Abyss Anglers diving feat.",                                             category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62221, name = "Abyss Anglers: Fresh Depth Nets",        description = "Swim through 25 Schools of Fish during a single Abyss Anglers dive.",    category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62762, name = "Abyss Anglers: Top of the Class",        description = "Abyss Anglers diving feat.",                                             category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62222, name = "Abyss Anglers: Free Transport",          description = "Get knocked away by a Brakpuffer during a dive.",                        category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62219, name = "Abyss Anglers: No Sea Can Hold Me",      description = "Attempt to swim beyond the dive boundaries.",                            category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62829, name = "Abyss Anglers: Don't Know What You Expected", description = "Abyss Anglers diving feat.",                                        category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62777, name = "Abyss Anglers: Pearls to the Abyss",     description = "Abyss Anglers diving feat.",                                             category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62272, name = "Abyss Anglers: Certified Depthdiver",    description = "Earn 250,000 points in cumulative Abyss Anglers dives.",                 category = "abyss_anglers_diving", expansion = "Midnight" },
+    { id = 62761, name = "Abyss Anglers: One with the Depths",     description = "Earn 1,000,000 points in cumulative Abyss Anglers dives.",               category = "abyss_anglers_diving", expansion = "Midnight" },
+
+    -- Fish (12) — catch counts, bait/dive suit gear unlocks
+    { id = 62207, name = "Abyss Anglers: Reinforced Joints",       description = "Complete 10 successful dives in Abyss Anglers.",                         category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62208, name = "Abyss Anglers: Depth Grease",            description = "Unlock Dive Suit Tier 3 (Swim Speed 150%).",                             category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62271, name = "Abyss Anglers: Trench Berserker",        description = "Catch 100 creatures in Abyss Anglers.",                                  category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62209, name = "Abyss Anglers: Pahk Trench Fins",        description = "Unlock Dive Suit Tier 4 (Swim Speed 200%).",                             category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62760, name = "Abyss Anglers: Angler Physics",          description = "Abyss Anglers fish feat.",                                               category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62117, name = "Abyss Anglers: Finnow Chum",             description = "Unlock Fishing Bait Tier 2 (Uncommon fish from Abyss Bubbles).",         category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62118, name = "Abyss Anglers: Plecofin Bait",           description = "Unlock Fishing Bait Tier 3 (Rare fish from Abyss Bubbles).",             category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62119, name = "Abyss Anglers: Murkskimmer Meat",        description = "Unlock Fishing Bait Tier 4.",                                            category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62772, name = "Abyss Anglers: Now That's Anglin'",      description = "Abyss Anglers fish feat.",                                               category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62776, name = "Abyss Anglers: All Blue Angler",         description = "Abyss Anglers fish feat.",                                               category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62778, name = "Abyss Anglers: Luck of the Loa",         description = "Abyss Anglers fish feat.",                                               category = "abyss_anglers_fish", expansion = "Midnight" },
+    { id = 62832, name = "Abyss Anglers: Reservation for One",     description = "Abyss Anglers fish feat.",                                               category = "abyss_anglers_fish", expansion = "Midnight" },
+
+    -- Creatures (9) — harpoon upgrades, oxygen upgrades, rare catches
+    { id = 62215, name = "Abyss Anglers: Heavy Harpoon Cannon",    description = "Unlock Harpoon upgrade.",                                                category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62216, name = "Abyss Anglers: Hollowcore Harpoon Turret", description = "Unlock advanced Harpoon upgrade.",                                     category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62775, name = "Abyss Anglers: Delicate Diver",          description = "Abyss Anglers creatures feat.",                                          category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62210, name = "Abyss Anglers: Depthdiver's Used Tank",  description = "Unlock Oxygen Tank Tier 2 (Max Oxygen 250).",                            category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62211, name = "Abyss Anglers: Fathom-Tested Tank",      description = "Unlock Oxygen Tank Tier 3 (Max Oxygen 300).",                            category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62212, name = "Abyss Anglers: Nalorakk's Breath Tank",  description = "Unlock Oxygen Tank Tier 4 (Max Oxygen 350).",                            category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62506, name = "Abyss Anglers: Pressurized Eyeglass",    description = "Unlock ability to find Ancient Treasures during dives.",                 category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62342, name = "Abyss Anglers: The Finest of Fish",      description = "Catch a Golden creature during an Abyss Anglers dive.",                  category = "abyss_anglers_creatures", expansion = "Midnight" },
+    { id = 62343, name = "Abyss Anglers: Myths from Beneath",      description = "Catch a Mythic creature 6 times from Abyss Anglers dives.",              category = "abyss_anglers_creatures", expansion = "Midnight" },
+
+    -- Relics (6) — net upgrades, treasure/relic feats, meta
+    { id = 62759, name = "Abyss Anglers: History Below",           description = "Abyss Anglers relics feat.",                                             category = "abyss_anglers_relics", expansion = "Midnight" },
+    { id = 62213, name = "Abyss Anglers: Shallows Net",            description = "Unlock Small Net Tier 1 (Barbed Crawlers, Thorny Seashorses).",          category = "abyss_anglers_relics", expansion = "Midnight" },
+    { id = 62214, name = "Abyss Anglers: Triple-Thread Net",       description = "Unlock Small Net Tier 2 (Deep Whelks, Bilejellies).",                    category = "abyss_anglers_relics", expansion = "Midnight" },
+    { id = 62763, name = "Abyss Anglers: Vintage Collector",       description = "Abyss Anglers relics feat.",                                             category = "abyss_anglers_relics", expansion = "Midnight" },
+    { id = 62773, name = "Abyss Anglers: Jeju's New Rival",        description = "Abyss Anglers relics feat.",                                             category = "abyss_anglers_relics", expansion = "Midnight" },
+    { id = 62217, name = "Abyss Anglers: Idol of the Depths",      description = "Complete all Abyss Anglers achievements.",                               category = "abyss_anglers_relics", expansion = "Midnight", isMeta = true },
+
+    -- ================================================================
     -- Miscellaneous
     -- ================================================================
     { id = 153,   name = "The Old Gnome and the Sea",     description = "Successfully catch fish from fishing pools.", category = "misc" },
@@ -406,6 +456,13 @@ AchievementData.PETS = {
         name = "Bubbly Snapling",
         speciesID = 4951,
         source = "Patient Treasure (random spawn while fishing Midnight pools)",
+        expansion = "Midnight",
+    },
+    {
+        itemID = 274266,
+        name = "Ka'bubb",
+        speciesID = 5065,
+        source = "Depthdiver Tu'nakit (2500 Angler Pearls)",
         expansion = "Midnight",
     },
 }

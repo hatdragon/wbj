@@ -283,7 +283,7 @@ ZoneData[2393] = { name = "Silvermoon City",     continent = "Quel'Thalas", expa
     fish = { 238371, 238366, 238365, 238370 } }
 ZoneData[2437] = { name = "Zul'Aman",            continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
     fish = { 238382, 238366, 238365, 238367, 238377, 238375, 238368, 238376 },
-    notes = "Lucky Loa from Obscured School and Surface Ripple pools. Blood Hunter spawns a hostile spirit." }
+    notes = "Lucky Loa from Obscured School and Surface Ripple pools. Blood Hunter spawns a hostile spirit. Home of the Abyss Anglers dive event — speak to Depthdiver Jeju to dive into the Zul'Aman Depths for Angler Pearls." }
 ZoneData[2413] = { name = "Harandar",             continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.DRATHEN,
     fish = { 238371, 238367, 238370, 238372, 238369, 238375, 238374, 238368 },
     notes = "Tender Lumifin exclusive to Harandar. Bioluminescent underground jungle." }

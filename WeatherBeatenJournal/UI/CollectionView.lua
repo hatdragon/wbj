@@ -383,6 +383,149 @@ end
 local function BuildCollectionData()
     local items = {}
 
+    -- === Abyss Anglers (Midnight 12.0.5) ===
+    local PEARLS_CURRENCY = 3373
+    local pearlInfo = C_CurrencyInfo.GetCurrencyInfo(PEARLS_CURRENCY)
+    local pearlCount = pearlInfo and pearlInfo.quantity or 0
+
+    local divingDone, divingTotal = CountCategory("abyss_anglers_diving")
+    local fishDone, fishTotal = CountCategory("abyss_anglers_fish")
+    local creaturesDone, creaturesTotal = CountCategory("abyss_anglers_creatures")
+    local relicsDone, relicsTotal = CountCategory("abyss_anglers_relics")
+    local totalDone = divingDone + fishDone + creaturesDone + relicsDone
+    local totalAll = divingTotal + fishTotal + creaturesTotal + relicsTotal
+
+    table.insert(items, {
+        type = "header",
+        text = "Abyss Anglers (Midnight)",
+        progress = format("%d/%d", totalDone, totalAll),
+        achievementID = 62217,
+    })
+
+    if ns.db and ns.db.diveHistory and #ns.db.diveHistory > 0 then
+        local totalDives = #ns.db.diveHistory
+        local totalCatches = 0
+        local bestScore = 0
+        for _, dive in ipairs(ns.db.diveHistory) do
+            totalCatches = totalCatches + (dive.catches or 0) + (dive.relics or 0)
+            if (dive.score or 0) > bestScore then bestScore = dive.score end
+        end
+        table.insert(items, {
+            type = "info",
+            text = format("  Dives: %d  |  Catches: %d  |  Best Score: %s  |  Angler Pearls: |T348545:0|t %s",
+                totalDives, totalCatches, ns.Util.FormatCount(bestScore), ns.Util.FormatCount(pearlCount)),
+        })
+    else
+        table.insert(items, {
+            type = "info",
+            text = format("  Angler Pearls: |T348545:0|t %s", ns.Util.FormatCount(pearlCount)),
+        })
+    end
+
+    local GEAR_UPGRADES = {
+        { label = "Suit",    ids = { 62207, 62208, 62209 } },
+        { label = "O2",      ids = { 62210, 62211, 62212 } },
+        { label = "Harpoon", ids = { 62215, 62216 } },
+        { label = "Net",     ids = { 62213, 62214 } },
+        { label = "Bait",    ids = { 62117, 62118, 62119 } },
+        { label = "Special", ids = { 62506 } },
+    }
+    local line1, line2 = {}, {}
+    for i, track in ipairs(GEAR_UPGRADES) do
+        local trackDone = 0
+        for _, id in ipairs(track.ids) do
+            if ns.IsAchievementCompleted(id) then trackDone = trackDone + 1 end
+        end
+        local tierText = trackDone == #track.ids and "|cff00cc00MAX|r" or format("%d/%d", trackDone, #track.ids)
+        local entry = format("%s: %s", track.label, tierText)
+        if i <= 3 then
+            line1[#line1 + 1] = entry
+        else
+            line2[#line2 + 1] = entry
+        end
+    end
+    table.insert(items, { type = "info", text = "  " .. table.concat(line1, "  |  ") })
+    table.insert(items, { type = "info", text = "  " .. table.concat(line2, "  |  ") })
+
+    -- Achievements by category
+    table.insert(items, {
+        type = "header",
+        text = "Diving",
+        progress = format("%d/%d", divingDone, divingTotal),
+    })
+    AddCategoryAchievements(items, "abyss_anglers_diving")
+
+    table.insert(items, {
+        type = "header",
+        text = "Fish",
+        progress = format("%d/%d", fishDone, fishTotal),
+    })
+    AddCategoryAchievements(items, "abyss_anglers_fish")
+
+    table.insert(items, {
+        type = "header",
+        text = "Creatures",
+        progress = format("%d/%d", creaturesDone, creaturesTotal),
+    })
+    AddCategoryAchievements(items, "abyss_anglers_creatures")
+
+    table.insert(items, {
+        type = "header",
+        text = "Relics",
+        progress = format("%d/%d", relicsDone, relicsTotal),
+    })
+    AddCategoryAchievements(items, "abyss_anglers_relics")
+
+    -- Rewards
+    local TUNAKIT_REWARDS = {
+        { itemID = 274267, name = "Fused Vitality",               cost = 750,  checkType = "item" },
+        { itemID = 258535, name = "Simple Bone-Tied Charm",       cost = 750,  checkType = "item" },
+        { itemID = 258536, name = "Windmark Tribal Charm",        cost = 750,  checkType = "item" },
+        { itemID = 258537, name = "Amani Dreamer's Charm",        cost = 750,  checkType = "item" },
+        { itemID = 258538, name = "Barebone Rope Charm",          cost = 750,  checkType = "item" },
+        { itemID = 264251, name = "Depthdiver's Cooking Spit",    cost = 1000, checkType = "toy" },
+        { itemID = 264252, name = "Zul'Aman Forest Hammock",      cost = 1000, checkType = "toy" },
+        { itemID = 253582, name = "Fangfin Flailer",              cost = 2250, checkType = "toy" },
+        { itemID = 266969, name = "Ensemble: Depthdiver Vestments", cost = 3000, checkType = "item" },
+        { itemID = 223245, name = "Ensemble: Abyss Angler",       cost = 4500, checkType = "item" },
+        { itemID = 265749, name = "Idol of the Depths",           cost = 1500, checkType = "item" },
+        { itemID = 274266, name = "Ka'bubb",                      cost = 2500, checkType = "pet", speciesID = 5065 },
+    }
+    local rewardCount = 0
+    for _, r in ipairs(TUNAKIT_REWARDS) do
+        local owned = false
+        if r.checkType == "toy" then
+            owned = PlayerHasToy(r.itemID)
+        elseif r.checkType == "pet" then
+            owned = ns.IsPetCollected(r.speciesID)
+        else
+            owned = GetItemCount(r.itemID, true) > 0
+        end
+        if owned then rewardCount = rewardCount + 1 end
+    end
+    table.insert(items, {
+        type = "header",
+        text = "Tu'nakit Rewards",
+        progress = format("%d/%d", rewardCount, #TUNAKIT_REWARDS),
+    })
+    for _, r in ipairs(TUNAKIT_REWARDS) do
+        local owned = false
+        if r.checkType == "toy" then
+            owned = PlayerHasToy(r.itemID)
+        elseif r.checkType == "pet" then
+            owned = ns.IsPetCollected(r.speciesID)
+        else
+            owned = GetItemCount(r.itemID, true) > 0
+        end
+        table.insert(items, {
+            type = "toy",
+            name = format("%s (%d pearls)", r.name, r.cost),
+            itemID = r.itemID,
+            collected = owned,
+        })
+    end
+    table.insert(items, { type = "info", text = "" })
+
     -- === "Salty" Meta Achievement ===
     local saltyDone, saltyTotal = CountCategory("salty")
     table.insert(items, {

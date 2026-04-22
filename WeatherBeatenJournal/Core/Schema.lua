@@ -15,6 +15,8 @@ Schema.DEFAULTS = {
         totalSessions = 0,
         missedCatches = 0,
     },
+    diveHistory = {},
+    diveHUDPos = nil,
     lastSection = 2,  -- Default to Spot Guide
     catchLogSort = ns.SORT_RECENT,
     catchLogFishOnly = false,
