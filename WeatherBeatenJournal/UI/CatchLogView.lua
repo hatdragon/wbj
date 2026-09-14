@@ -25,7 +25,7 @@ end
 local function CacheItemInfo(itemID)
     if itemCache[itemID] then return itemCache[itemID] end
 
-    local name, _, quality, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+    local name, _, quality, _, _, _, _, _, _, icon = C_Item.GetItemInfo(itemID)
     if name then
         itemCache[itemID] = {
             name = name,
@@ -36,7 +36,7 @@ local function CacheItemInfo(itemID)
         -- Queue async load — Item:CreateFromItemID handles the server query
         local item = Item:CreateFromItemID(itemID)
         item:ContinueOnItemLoad(function()
-            local n, _, q, _, _, _, _, _, _, tex = GetItemInfo(itemID)
+            local n, _, q, _, _, _, _, _, _, tex = C_Item.GetItemInfo(itemID)
             if n then
                 itemCache[itemID] = { name = n, quality = q, icon = tex }
             end

@@ -582,7 +582,7 @@ function ns.GetPetIcon(speciesID, itemID)
     end
     -- Fallback: use the item icon
     if itemID then
-        local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+        local _, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(itemID)
         if icon then return icon end
     end
     return nil

@@ -499,7 +499,7 @@ local function BuildCollectionData()
         elseif r.checkType == "pet" then
             owned = ns.IsPetCollected(r.speciesID)
         else
-            owned = GetItemCount(r.itemID, true) > 0
+            owned = C_Item.GetItemCount(r.itemID, true) > 0
         end
         if owned then rewardCount = rewardCount + 1 end
     end
@@ -515,7 +515,7 @@ local function BuildCollectionData()
         elseif r.checkType == "pet" then
             owned = ns.IsPetCollected(r.speciesID)
         else
-            owned = GetItemCount(r.itemID, true) > 0
+            owned = C_Item.GetItemCount(r.itemID, true) > 0
         end
         table.insert(items, {
             type = "toy",

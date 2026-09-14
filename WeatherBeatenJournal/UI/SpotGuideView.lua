@@ -201,7 +201,7 @@ function SpotGuideView:Create(parent)
         if data.type == "gear" then
             -- Gear item row (bait or lure)
             fr.learned:Hide()
-            local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(data.itemID)
+            local _, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(data.itemID)
             fr.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
             fr.name:SetText(data.name)
             fr.name:SetTextColor(0.40, 0.80, 1.0)  -- blue tint for gear
@@ -241,7 +241,7 @@ function SpotGuideView:Create(parent)
         local quality = static and static.quality or Enum.ItemQuality.Common
 
         -- Try to get icon from cache/API
-        local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(data.itemID)
+        local _, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(data.itemID)
         fr.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_Fish_02")
         fr.name:SetText(name)
 

@@ -142,7 +142,7 @@ function NarratorPanel:SetFishFlavor(itemID)
     panel:Show()
 
     -- Use fish icon or recipe icon
-    local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+    local _, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(itemID)
     if static.icon then
         panel.portrait:SetTexture(static.icon)
     elseif icon then

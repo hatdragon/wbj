@@ -48,7 +48,7 @@ local function OnLootOpened()
 
             -- Check for rare catch sound
             if ns.db.settings.soundOnRareCatch then
-                local _, _, quality = GetItemInfo(itemID)
+                local _, _, quality = C_Item.GetItemInfo(itemID)
                 if quality and quality >= Enum.ItemQuality.Rare then
                     PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
                 end
