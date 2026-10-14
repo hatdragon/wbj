@@ -294,6 +294,17 @@ ZoneData[2424] = { name = "Isle of Quel'Danas",  continent = "Quel'Thalas", expa
     fish = { 238371, 238366, 238370, 238384 } }
 
 -------------------------------------------------------------------------------
+-- Midnight 12.1 — The Curse of Ula'tek
+-------------------------------------------------------------------------------
+ZoneData[2512] = { name = "The Coiled Isle",       continent = "Quel'Thalas", expansion = "Midnight", narratorID = N.SECOND_MATE_SLUGGS,
+    fish = { 274587, 274588, 274592, 274594, 279091, 279093, 279100, 279105,
+             274590, 274589, 274591, 274593, 279094, 279106,
+             274596, 274597, 274595, 278848, 265525 },
+    notes = "Cursed Fishing. A spot only opens after you clear the Curse Surge on top of it \226\128\148 the unlock is warband-wide, and the surges rotate between five locations. "
+        .. "Venomous pools pay the best but tick Nature damage while you stand in them. "
+        .. "Every non-junk catch here loads The Coiled Huntress with venom; Seasage Polo siphons it into Coiled Filament 1:1, and Second Mate Sluggs takes the Filament." }
+
+-------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
 
@@ -366,8 +377,19 @@ function ns.GetZoneGear(mapID)
         if bait.expansion == exp then
             local match = fishNames[bait.targetFish] or (bait.mapIDs and bait.mapIDs[mapID])
             if match then
-                local category = bait.usage == "summon" and "Summon" or "Bait"
-                table.insert(gear, { itemID = bait.itemID, name = bait.name, category = category, targetFish = bait.targetFish })
+                local category = "Bait"
+                if bait.usage == "summon" then
+                    category = "Summon"
+                elseif bait.usage == "utility" then
+                    category = "Utility"
+                end
+                table.insert(gear, {
+                    itemID = bait.itemID,
+                    name = bait.name,
+                    category = category,
+                    targetFish = bait.targetFish,
+                    note = bait.note,
+                })
             end
         end
     end

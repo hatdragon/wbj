@@ -2,7 +2,7 @@
 ## Title: Weather-Beaten Journal
 ## Notes: A fishing companion — catch log, zone guide, and collectible tracker, all narrated by Azeroth's finest anglers.
 ## Author: hatdragon
-## Version: r2.1.5
+## Version: r2.2.0
 ## SavedVariables: WeatherBeatenJournalDB
 ## IconTexture: Interface\Icons\inv_misc_book_11
 ## Category: Professions

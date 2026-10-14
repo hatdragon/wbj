@@ -393,9 +393,30 @@ end
 -------------------------------------------------------------------------------
 -- Tooltip enrichment — adds FishData fields (flavor, special, pools, zones)
 -------------------------------------------------------------------------------
+-- Catch Rank colours, matching the ladder the fishing journal uses
+local CATCH_RANK_COLORS = {
+    Guppy  = { 1.00, 1.00, 1.00 },
+    Minnow = { 0.12, 1.00, 0.00 },
+    Pike   = { 0.00, 0.44, 0.87 },
+    Shark  = { 0.64, 0.21, 0.93 },
+    Trophy = { 1.00, 0.50, 0.00 },
+}
+
 function Widgets:EnrichFishTooltip(itemID, currentMapID)
     local static = ns.FishData[itemID]
     if not static then return end
+
+    -- Catch Rank / Anglin' Score, straight from the in-game journal
+    if static.catchRank or static.anglinScore then
+        GameTooltip:AddLine(" ")
+        if static.catchRank then
+            local c = CATCH_RANK_COLORS[static.catchRank] or { 0.8, 0.8, 0.8 }
+            GameTooltip:AddDoubleLine("Catch Rank", static.catchRank, 0.5, 0.8, 1.0, c[1], c[2], c[3])
+        end
+        if static.anglinScore then
+            GameTooltip:AddDoubleLine("Anglin' Score", tostring(static.anglinScore), 0.5, 0.8, 1.0, 0.9, 0.9, 0.9)
+        end
+    end
 
     -- Flavor text
     if static.flavorText then

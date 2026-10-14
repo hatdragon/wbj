@@ -56,6 +56,7 @@ local FISH_CATEGORY_IDS = {
     [2197] = true, -- Common
     [2233] = true, -- Uncommon
     [2234] = true, -- Rare
+    [2756] = true, -- Cursed Oddities (12.1, The Coiled Isle)
     -- Dragonflight
     [1806] = true, -- Freshwater
     [1807] = true, -- Saltwater
@@ -71,7 +72,8 @@ local EXCLUDED_CATEGORY_IDS = {
     [2120] = true, -- Angler's Log
     [2122] = true, -- Algari Weaverline
     [2123] = true, -- Test Your Ability
-    [2705] = true, -- Appendix
+    [2704] = true, -- Appendix I - Terms
+    [2705] = true, -- Appendix II - Stats
 }
 
 local function IsFishCategory(categoryID, categoryName)
@@ -99,8 +101,8 @@ local function StripEscapes(text)
     -- Remove color codes |cnCOLOR_NAME: and |cffXXXXXX
     text = text:gsub("|cn[^:]*:", "")
     text = text:gsub("|c%x%x%x%x%x%x%x%x", "")
-    -- Remove |r reset codes
-    text = text:gsub("|r", "")
+    -- Remove reset codes. 12.1 mixes |r and |R in the same description.
+    text = text:gsub("|[rR]", "")
     -- Remove |n newlines (convert to actual newlines)
     text = text:gsub("|n", "\n")
     -- Trim whitespace
@@ -108,7 +110,55 @@ local function StripEscapes(text)
     return text
 end
 
--- Parse a recipe description into structured data
+-- Section headers, keyed by the lowercase text that appears before the colon.
+-- Matching is done on the stripped text, so this works regardless of whether
+-- the build wraps the header in |cnGREEN_FONT_COLOR: (12.0) or |cff2dae5a (12.1).
+local SECTION_KEYS = {
+    ["description"] = "description",
+    ["special"]     = "special",
+    ["rates"]       = "rates",
+}
+
+local function ClassifyHeader(header)
+    local lower = header:lower()
+    if SECTION_KEYS[lower] then return SECTION_KEYS[lower] end
+    if lower:find("areas") or lower:find("find this fish") then return "zones" end
+    if lower:find("pool") then return "pools" end
+    if lower:find("special") then return "special" end
+    if lower:find("rate") then return "rates" end
+    if lower:find("description") then return "description" end
+    return nil
+end
+
+-- Catch Rank ladder, lowest to highest. The journal renders one of these
+-- names; rankIndex 5 ("Trophy") is what "Toxic Trophies" (63632) asks for.
+local CATCH_RANKS = { "Guppy", "Minnow", "Pike", "Shark", "Trophy" }
+ns.CATCH_RANKS = CATCH_RANKS
+
+local CATCH_RANK_INDEX = {}
+for i, name in ipairs(CATCH_RANKS) do
+    CATCH_RANK_INDEX[name:lower()] = i
+end
+
+function ns.GetCatchRankIndex(rankName)
+    if not rankName then return nil end
+    return CATCH_RANK_INDEX[rankName:lower()]
+end
+
+-- Parse a recipe description into structured data.
+--
+-- The Midnight fishing journal changed shape in 12.1:
+--   12.0: sections were headed with |cnGREEN_FONT_COLOR:Header:|r and the
+--         flavour text sat above the first header with no header of its own.
+--   12.1: headers use literal colours (|cff2dae5aHeader:|R), flavour text got
+--         its own "Description:" header, a "Rates:" section was added, and a
+--         stat block was prepended:
+--             |cff69ccf0Anglin' Score:|r 120 points.
+--             |cff69ccf0Catch Rank:|r |cffff8000Trophy|r
+--
+-- Rather than match either colour escape, we strip escapes first and then read
+-- the plain text line by line: a line that is nothing but "Something:" opens a
+-- section. That works on both builds and survives the next recolouring.
 local function ParseDescription(rawText)
     if not rawText or rawText == "" then return nil end
 
@@ -117,92 +167,80 @@ local function ParseDescription(rawText)
         special = nil,     -- { name, effect }
         zones = nil,       -- { "Zone1", "Zone2" }
         pools = nil,       -- { "Pool1", "Pool2" }
+        rates = nil,       -- { "line", ... }
+        anglinScore = nil, -- number, this character's score for the fish
+        catchRank = nil,   -- "Guppy" | "Minnow" | "Pike" | "Shark" | "Trophy"
     }
 
-    -- Split on |cnGREEN_FONT_COLOR: markers
-    -- Format: [flavor] |cnGREEN_FONT_COLOR:Header:|r [content] |cnGREEN_FONT_COLOR:Header:|r [content]
-    local sections = {}
-    local lastEnd = 1
+    local text = StripEscapes(rawText)
+    if text == "" then return result end
 
-    -- Find all section markers
-    local pattern = "|cnGREEN_FONT_COLOR:(.-):|r"
-    for header, pos in rawText:gmatch("|cnGREEN_FONT_COLOR:(.-):|r()") do
-        -- Everything before this marker belongs to previous section
-        local startOfMarker = rawText:find("|cnGREEN_FONT_COLOR:" .. header:gsub("([%(%)%.%%%+%-%*%?%[%^%$])", "%%%1") .. ":|r")
-        if startOfMarker then
-            local before = rawText:sub(lastEnd, startOfMarker - 1)
-            if #sections == 0 then
-                -- Text before first marker = flavor text
-                local cleaned = StripEscapes(before)
-                if cleaned ~= "" then
-                    result.flavorText = cleaned
-                end
+    local current = nil          -- section key currently being filled
+    local buckets = {}           -- key -> { line, ... }
+    local preamble = {}          -- lines seen before any header (12.0 flavour)
+
+    for rawLine in text:gmatch("[^\r\n]+") do
+        local line = strtrim(rawLine)
+        if line ~= "" then
+            -- Stat block: "Header: value" on a single line
+            local score = line:match("^Anglin'? Score:%s*([%d,]+)")
+            local rank = line:match("^Catch Rank:%s*(.+)$")
+
+            if score then
+                result.anglinScore = tonumber((score:gsub(",", "")))
+            elseif rank then
+                result.catchRank = strtrim(rank)
             else
-                sections[#sections].content = before
+                -- A bare "Something:" line opens a section
+                local header = line:match("^(.-):$")
+                local key = header and ClassifyHeader(header) or nil
+                if key then
+                    current = key
+                    buckets[key] = buckets[key] or {}
+                elseif current then
+                    table.insert(buckets[current], line)
+                else
+                    table.insert(preamble, line)
+                end
             end
-            table.insert(sections, { header = header, startPos = pos, content = "" })
-            lastEnd = pos
         end
     end
 
-    -- Last section gets remaining text
-    if #sections > 0 then
-        sections[#sections].content = rawText:sub(lastEnd)
-    elseif lastEnd == 1 then
-        -- No markers at all — entire text is flavor
-        local cleaned = StripEscapes(rawText)
-        if cleaned ~= "" then
-            result.flavorText = cleaned
-        end
-        return result
+    -- Flavour text: an explicit Description section (12.1), else the preamble (12.0)
+    local descLines = buckets.description
+    if descLines and #descLines > 0 then
+        result.flavorText = table.concat(descLines, "\n")
+    elseif #preamble > 0 then
+        result.flavorText = table.concat(preamble, "\n")
     end
 
-    -- Process each section
-    for _, section in ipairs(sections) do
-        local headerLower = section.header:lower()
-        local content = section.content
-
-        if headerLower:find("special") then
-            -- Special ability: first non-empty line = name, rest = effect
-            local lines = {}
-            for line in content:gmatch("[^\r\n]+") do
-                local cleaned = StripEscapes(line)
-                if cleaned ~= "" then
-                    table.insert(lines, cleaned)
-                end
-            end
-            if #lines > 0 then
-                result.special = {
-                    name = lines[1],
-                    effect = table.concat(lines, "\n", 2),
-                }
-            end
-
-        elseif headerLower:find("areas") or headerLower:find("find this fish") then
-            -- Zone list: lines starting with "- "
-            result.zones = {}
-            for line in content:gmatch("[^\r\n]+") do
-                local cleaned = StripEscapes(line)
-                local zone = cleaned:match("^%-%s*(.+)") or cleaned:match("^•%s*(.+)")
-                if zone and zone ~= "" then
-                    table.insert(result.zones, strtrim(zone))
-                end
-            end
-            if #result.zones == 0 then result.zones = nil end
-
-        elseif headerLower:find("pool") then
-            -- Pool list: lines starting with "- "
-            result.pools = {}
-            for line in content:gmatch("[^\r\n]+") do
-                local cleaned = StripEscapes(line)
-                local pool = cleaned:match("^%-%s*(.+)") or cleaned:match("^•%s*(.+)")
-                if pool and pool ~= "" then
-                    table.insert(result.pools, strtrim(pool))
-                end
-            end
-            if #result.pools == 0 then result.pools = nil end
-        end
+    -- Special ability: first line is the name, the rest is the effect
+    local specialLines = buckets.special
+    if specialLines and #specialLines > 0 then
+        result.special = {
+            name = specialLines[1],
+            effect = table.concat(specialLines, "\n", 2),
+        }
     end
+
+    -- Bulleted lists
+    local function BulletList(key)
+        local lines = buckets[key]
+        if not lines then return nil end
+        local out = {}
+        for _, line in ipairs(lines) do
+            local value = line:match("^%-%s*(.+)") or line:match("^\226\128%a%s*(.+)")
+            if value then
+                value = strtrim(value)
+                if value ~= "" then table.insert(out, value) end
+            end
+        end
+        return #out > 0 and out or nil
+    end
+
+    result.zones = BulletList("zones")
+    result.pools = BulletList("pools")
+    result.rates = BulletList("rates")
 
     return result
 end
@@ -257,6 +295,9 @@ local function ScanRecipes()
                     special = parsed and parsed.special or nil,
                     profZones = parsed and parsed.zones or nil,
                     profPools = parsed and parsed.pools or nil,
+                    profRates = parsed and parsed.rates or nil,
+                    anglinScore = parsed and parsed.anglinScore or nil,
+                    catchRank = parsed and parsed.catchRank or nil,
                 }
 
                 recipeCache[recipeID] = entry
@@ -273,6 +314,9 @@ local function ScanRecipes()
                         fishEntry.special = entry.special
                         fishEntry.profZones = entry.profZones
                         fishEntry.profPools = entry.profPools
+                        fishEntry.profRates = entry.profRates
+                        fishEntry.anglinScore = entry.anglinScore
+                        fishEntry.catchRank = entry.catchRank
                         fishEntry.learned = entry.learned
                         fishEntry.categoryName = categoryName
 
@@ -394,6 +438,29 @@ function ProfessionData:GetFishSpecial(itemID)
     return entry and entry.special or nil
 end
 
+--- Catch Rank / Anglin' Score for a fish, as reported by the in-game journal.
+--- Returns rankName, rankIndex, score — all nil until the journal has been scanned.
+function ProfessionData:GetCatchRank(itemID)
+    local entry = ns.FishData[itemID]
+    if not entry then return nil end
+    return entry.catchRank, ns.GetCatchRankIndex(entry.catchRank), entry.anglinScore
+end
+
+--- How many of the given fish have reached a rank (default Trophy, index 5).
+--- Returns atRank, total, scanned — scanned is false if the journal has not
+--- been opened yet, in which case atRank is meaningless rather than zero.
+function ProfessionData:CountAtRank(itemIDs, minRankIndex)
+    minRankIndex = minRankIndex or #ns.CATCH_RANKS
+    local atRank = 0
+    for _, itemID in ipairs(itemIDs) do
+        local _, rankIndex = self:GetCatchRank(itemID)
+        if rankIndex and rankIndex >= minRankIndex then
+            atRank = atRank + 1
+        end
+    end
+    return atRank, #itemIDs, isLoaded
+end
+
 function ProfessionData:Rescan()
     recipeCache = {}
     itemToRecipe = {}
@@ -425,8 +492,17 @@ ns:RegisterCallback("ADDON_LOADED", function()
                 end
             end
 
+            -- Count how many entries actually got their sections parsed. A zero
+            -- here means the journal's description format has moved again.
+            local withSections, withRank = 0, 0
+            for _, entry in pairs(recipeCache) do
+                if entry.profZones or entry.profPools then withSections = withSections + 1 end
+                if entry.catchRank then withRank = withRank + 1 end
+            end
+
             print("|cff88ccffWBJ ProfData:|r Scan results:")
             print(format("  Recipes: %d | Matched to FishData: %d | Unmatched: %d", total, matchCount, #unmatched))
+            print(format("  Parsed zones/pools: %d | Parsed Catch Rank: %d", withSections, withRank))
             if #unmatched > 0 then
                 print("  Unmatched names: " .. table.concat(unmatched, ", "))
             end
@@ -436,6 +512,10 @@ ns:RegisterCallback("ADDON_LOADED", function()
             local sample = ns.FishData[sampleID]
             if sample and sample.recipeID then
                 print(format("  Sample — %s (itemID %d):", sample.name, sampleID))
+                if sample.catchRank or sample.anglinScore then
+                    print(format("    Catch Rank: %s | Anglin' Score: %s",
+                        tostring(sample.catchRank), tostring(sample.anglinScore)))
+                end
                 if sample.profZones then
                     print("    Zones: " .. table.concat(sample.profZones, ", "))
                 end

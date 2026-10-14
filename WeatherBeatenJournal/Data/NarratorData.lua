@@ -39,6 +39,7 @@ ns.NARRATOR = {
     TUSKARR_ELDER       = "tuskarr_elder",
     DRATHEN             = "drathen",
     DEPTHDIVER_JEJU     = "depthdiver_jeju",
+    SECOND_MATE_SLUGGS  = "second_mate_sluggs",
 }
 
 local N = ns.NARRATOR
@@ -506,6 +507,33 @@ Narrators[N.DEPTHDIVER_JEJU] = {
             "Ready for another dive? The Abyss won't fish itself.",
             "Gear up, breathe deep, and aim true. That's all there is to it.",
             "The creatures down there aren't going to harpoon themselves. Well, except the Brakpuffers. They mostly harpoon you.",
+        },
+    },
+}
+
+Narrators[N.SECOND_MATE_SLUGGS] = {
+    id = N.SECOND_MATE_SLUGGS,
+    name = "Second Mate Sluggs",
+    title = "Captain Tokka's Crew, Tokka's Folly",
+    displayID = nil,
+    expansion = "Midnight",
+    quotes = {
+        spotGuide = {
+            "Curse won't lift itself. Break the surge, then the water opens up. Simple as that.",
+            "Aye, the venom burns. It also pays. Weigh that up before you wade in.",
+            "Fish here long enough and the rod starts drinkin'. Take it to Polo before it gets ideas.",
+        },
+        catchLog = {
+            "Fourteen of 'em swimmin' in that muck. Cap'n counted. Cap'n always counts.",
+            "That's a tidy ledger. Ula'tek keeps one too, mind. His is longer.",
+        },
+        collections = {
+            "Filament buys plenty. It don't buy forgiveness, but it buys plenty.",
+            "The Huntress ain't a rod so much as a bargain. You'll see.",
+        },
+        default = {
+            "Welcome to Tokka's Folly. Mind the water. Mind the crew. Mind yourself.",
+            "Cursed fishin's like any other fishin'. Just louder.",
         },
     },
 }

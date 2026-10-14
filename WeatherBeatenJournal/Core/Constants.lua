@@ -4,7 +4,7 @@ local ADDON_NAME, ns = ...
 -- Namespace
 -------------------------------------------------------------------------------
 ns.ADDON_NAME = ADDON_NAME
-ns.VERSION = "2.1.0"
+ns.VERSION = "2.2.0"
 
 -------------------------------------------------------------------------------
 -- Fishing Profession
@@ -22,8 +22,8 @@ ns.FISHING_VARIANT_SKILL_LINES = {
     2585, -- BFA
     2754, -- Shadowlands
     2826, -- Dragonflight
-    2871, -- TWW
-    2911, -- Midnight
+    2876, -- TWW (Khaz Algar Fishing — 2871 is Khaz Algar Alchemy)
+    2911, -- Midnight (also covers 12.1 Coiled Isle cursed fishing)
 }
 
 -------------------------------------------------------------------------------

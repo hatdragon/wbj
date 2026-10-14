@@ -204,6 +204,24 @@ AchievementData.ACHIEVEMENTS = {
     { id = 62217, name = "Abyss Anglers: Idol of the Depths",      description = "Complete all Abyss Anglers achievements.",                               category = "abyss_anglers_relics", expansion = "Midnight", isMeta = true },
 
     -- ================================================================
+    -- Expansion Achievements — Midnight: Cursed Fishing (12.1)
+    -- Meta is "Tokka's Terrible Trials" (63635) -> Title: Bloodsworn Mariner
+    -- ================================================================
+    { id = 63635, name = "Tokka's Terrible Trials",       description = 'Complete the Cursed Fishing achievements below. Rewards the "Bloodsworn Mariner" title.', category = "cursed_fishing", expansion = "Midnight", isMeta = true },
+    { id = 63629, name = "Angler of The Coiled Isle",     description = "Catch every fish from The Coiled Isle. Rewards the Sinful Pearl.",                       category = "cursed_fishing", expansion = "Midnight" },
+    { id = 63632, name = "Toxic Trophies",                description = "Reach Trophy rank \226\128\148 the top Catch Rank \226\128\148 with all 8 fish listed.",  category = "cursed_fishing", expansion = "Midnight" },
+    { id = 63631, name = "Captain Tokka's Crew",          description = 'Reach "Bloodsworn Crew" with Captain Tokka.',                                            category = "cursed_fishing", expansion = "Midnight" },
+    { id = 63634, name = "Where Did You Get That?",       description = "Speak with Captain Tokka while The Coiled Huntress is equipped.",                        category = "cursed_fishing", expansion = "Midnight" },
+
+    -- Related Coiled Isle fishing achievements (not part of the meta)
+    { id = 63512, name = "Treasures of the Damned",       description = "Fish up all 10 artifacts from Tokka's departed crewmates on the Coiled Isle.",           category = "cursed_fishing", expansion = "Midnight" },
+
+    -- ================================================================
+    -- Expansion Achievements — Midnight (Fishing Journal)
+    -- ================================================================
+    { id = 63510, name = "The Briny Best",                description = 'Reach 2500 Midnight Anglin\' Score in the Fishing Journal. Rewards the "Briny" title.',  category = "expansion", expansion = "Midnight" },
+
+    -- ================================================================
     -- Miscellaneous
     -- ================================================================
     { id = 153,   name = "The Old Gnome and the Sea",     description = "Successfully catch fish from fishing pools.", category = "misc" },
@@ -311,6 +329,14 @@ AchievementData.MOUNTS = {
         source = "The Derby Dash achievement (Hallowfall Fishing Derby)",
         zones = "Hallowfall",
         expansion = "TWW",
+    },
+    {
+        itemID = 275653,
+        name = "Sea-Dwelling Isle Serpent",
+        spellID = 1297216,
+        source = "Second Mate Sluggs \226\128\148 2,500 Coiled Filament (Bloodsworn Crew)",
+        zones = "The Coiled Isle",
+        expansion = "Midnight",
     },
 }
 
@@ -465,6 +491,13 @@ AchievementData.PETS = {
         source = "Depthdiver Tu'nakit (2500 Angler Pearls)",
         expansion = "Midnight",
     },
+    {
+        itemID = 275020,
+        name = "Venom Elemental",
+        speciesID = 5070,
+        source = "Second Mate Sluggs (Captain Tokka \226\128\148 Venom Trawler)",
+        expansion = "Midnight",
+    },
 }
 
 -------------------------------------------------------------------------------
@@ -540,6 +573,116 @@ AchievementData.GARRISON_FISHING = {
 }
 
 -------------------------------------------------------------------------------
+-- Cursed Fishing — The Coiled Isle (Midnight 12.1)
+--
+-- Loop: clear a Curse Surge to open cursed water at that spot (warband-wide),
+-- fish it, then siphon the venom off The Coiled Huntress into Coiled Filament
+-- and spend it with Second Mate Sluggs.
+-------------------------------------------------------------------------------
+AchievementData.CURSED_FISHING = {
+    mapID        = 2512,               -- The Coiled Isle
+    factionID    = 2773,               -- Captain Tokka (friendship reputation)
+    factionName  = "Captain Tokka",
+    currencyID   = 3546,               -- Coiled Filament
+    currencyName = "Coiled Filament",
+    metaAchievementID = 63635,         -- Tokka's Terrible Trials
+    anglerAchievementID = 63629,       -- Angler of The Coiled Isle
+    trophyAchievementID = 63632,       -- Toxic Trophies
+    treasureAchievementID = 63512,     -- Treasures of the Damned
+    rodItemID    = 244790,             -- The Coiled Huntress
+
+    -- The rod's venom balance has no currency and no aura. It lives in a
+    -- character data element that is only surfaced through the description of
+    -- The Coiled Huntress's on-equip effect ("Prof Gear Venom Bonus"), which
+    -- the client substitutes at render time as "+N Venom".
+    venomSpellID = 1305168,
+
+    -- Friendship ranks, in order. Sluggs gates his stock on these.
+    ranks = {
+        "Stranger",
+        "Doomed Sailor",
+        "Cursed Angler",
+        "Venom Trawler",
+        "Bloodsworn Crew",
+    },
+
+    -- The 14 "Angler of The Coiled Isle" criteria, in achievement order
+    achievementFish = {
+        274587, -- Spotted Killifish
+        274589, -- Ula'tek Snakehead
+        274591, -- Coiled Stargorger
+        274594, -- Polluted Puffer
+        279091, -- Oozing Goby
+        279094, -- Grotesque Sturgeon
+        279105, -- Twin-Headed Snipefish
+        274592, -- Dirty Darter
+        274590, -- Sulfurous Sludgefish
+        274588, -- Toxic Tlhapi
+        274593, -- Blightswarmer
+        279093, -- Giggling Skull
+        279100, -- Many-Eyed Flounder
+        279106, -- Loathsome Anglerfish
+    },
+
+    -- "Toxic Trophies" (63632) — reach Trophy rank, the 5th and top Catch Rank,
+    -- with each of these 8. The rank is readable: the fishing journal prints it
+    -- in each fish's recipe description, which ProfessionDataProvider parses.
+    trophyFish = {
+        274592, -- Dirty Darter
+        274587, -- Spotted Killifish
+        274588, -- Toxic Tlhapi
+        274594, -- Polluted Puffer
+        274590, -- Sulfurous Sludgefish
+        274593, -- Blightswarmer
+        274591, -- Coiled Stargorger
+        274589, -- Ula'tek Snakehead
+    },
+
+    -- "Treasures of the Damned" (63512) — 10 artifacts fished out of the isle
+    treasures = {
+        { itemID = 279384, name = "Bonemail Gauntlet" },
+        { itemID = 278001, name = "Forgotten Amani Fishing Rod" },
+        { itemID = 277989, name = "Ghostcaller's Bell" },
+        { itemID = 277997, name = "Malevolent Fishing Codex" },
+        { itemID = 277998, name = "Lump of Crystalline Malachite" },
+        { itemID = 277999, name = "Ritual Dagger" },
+        { itemID = 278000, name = "Sealed Vial of Mysterious Green Liquid" },
+        { itemID = 277991, name = "Shrieking Tacklebox" },
+        { itemID = 277993, name = "Spiritsurge Incense" },
+        { itemID = 277996, name = "Summoning Salt" },
+    },
+
+    -- Second Mate Sluggs, Tokka's Folly (/way #2512 51.6 49.8).
+    -- rank = required Captain Tokka rank (1 = Stranger .. 5 = Bloodsworn Crew).
+    -- cost = Coiled Filament, where the price is confirmed.
+    --
+    -- rewards: permanent collectibles, so we can show real collected state.
+    rewards = {
+        { itemID = 275653, name = "Sea-Dwelling Isle Serpent", rank = 5, cost = 2500, checkType = "mount",    spellID = 1297216 },
+        { itemID = 244790, name = "The Coiled Huntress",       rank = 5,              checkType = "transmog" },
+        { itemID = 274814, name = "Envenomed Game Ripper",     rank = 5, cost = 1000, checkType = "transmog" },
+        { itemID = 274802, name = "Envenomed Gavel",           rank = 5, cost = 500,  checkType = "transmog" },
+        { itemID = 274796, name = "Envenomed Deathblade",      rank = 5,              checkType = "transmog" },
+        { itemID = 275020, name = "Venom Elemental",           rank = 4,              checkType = "pet",      speciesID = 5070 },
+    },
+
+    -- supplies: consumables, recipes and rod materials. There is no reliable
+    -- "do you own this" check for a learned recipe or a spent consumable, so
+    -- these are listed for reference only — never with a collected state.
+    supplies = {
+        { itemID = 281022, name = "Eerie Lure",                     rank = 1 },
+        { itemID = 262792, name = "Shredded Bloomline",             rank = 1, cost = 10 },
+        { itemID = 262797, name = "Shredded Glimmerline",           rank = 1, cost = 10 },
+        { itemID = 278332, name = "Recipe: Puffer Plate",           rank = 2 },
+        { itemID = 275018, name = "Recipe: Coiled Stargorger Lure", rank = 3 },
+        { itemID = 271891, name = "Recipe: Alluring Nostrum",       rank = 3 },
+        { itemID = 275012, name = "Recipe: Tokka's Multi-Ward",     rank = 4 },
+        { itemID = 275301, name = "Recipe: Feast of Knowledge",     rank = 4 },
+        { itemID = 278391, name = "Eerie Bauble",                   rank = 4 },
+    },
+}
+
+-------------------------------------------------------------------------------
 -- Anglers Reputation (MoP)
 -------------------------------------------------------------------------------
 AchievementData.ANGLERS = {
@@ -594,4 +737,61 @@ end
 
 function ns.IsQuestCompleted(questID)
     return C_QuestLog.IsQuestFlaggedCompleted(questID)
+end
+
+--- Read a friendship-style reputation (Captain Tokka, Nat Pagle, Margoss...).
+--- Returns rankIndex (1-based, nil if unknown), rankName, current, needed.
+--- current/needed describe progress within the current rank.
+function ns.GetFriendshipRank(factionID, rankNames)
+    if not C_GossipInfo or not C_GossipInfo.GetFriendshipReputation then return nil end
+    local info = C_GossipInfo.GetFriendshipReputation(factionID)
+    if not info or not info.friendshipFactionID or info.friendshipFactionID == 0 then return nil end
+
+    local rankIndex
+    if rankNames then
+        for i, name in ipairs(rankNames) do
+            if name == info.reaction then
+                rankIndex = i
+                break
+            end
+        end
+    end
+
+    local floor_ = info.reactionThreshold or 0
+    local cap = info.nextThreshold
+    local current = (info.standing or 0) - floor_
+    local needed = cap and (cap - floor_) or nil
+
+    return rankIndex, info.reaction, current, needed
+end
+
+--- Venom currently banked in The Coiled Huntress, or nil if it can't be read.
+---
+--- There is no currency or aura for this. The only place the game exposes the
+--- number is the rod's on-equip effect description, where "$@cdataelem592" is
+--- substituted client-side into "+N Venom". Spell descriptions are lazily
+--- loaded, so an early call can legitimately come back empty — callers should
+--- treat nil as "unknown", not as zero.
+function ns.GetRodVenom()
+    local spellID = AchievementData.CURSED_FISHING.venomSpellID
+    local desc
+    if C_Spell and C_Spell.GetSpellDescription then
+        desc = C_Spell.GetSpellDescription(spellID)
+    elseif GetSpellDescription then
+        desc = GetSpellDescription(spellID)
+    end
+    if not desc or desc == "" then return nil end
+
+    local amount = desc:match("%+%s*([%d,]+)%s+Venom")
+    if not amount then return nil end
+    return tonumber((amount:gsub(",", "")))
+end
+
+--- Has the player collected this item's transmog appearance?
+function ns.HasTransmogAppearance(itemID)
+    if not C_TransmogCollection or not C_TransmogCollection.PlayerHasTransmogByItemInfo then
+        return false
+    end
+    local ok, has = pcall(C_TransmogCollection.PlayerHasTransmogByItemInfo, itemID)
+    return ok and has or false
 end

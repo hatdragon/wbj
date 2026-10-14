@@ -209,7 +209,12 @@ function SpotGuideView:Create(parent)
             if data.category == "Summon" then
                 fr.count:SetText("Use")
                 fr.count:SetTextColor(0.70, 0.50, 0.90)
-                fr.zone:SetText("Attracts " .. (data.targetFish or ""))
+                fr.zone:SetText(data.note or ("Attracts " .. (data.targetFish or "")))
+                fr.zone:SetTextColor(0.7, 0.7, 0.7)
+            elseif data.category == "Utility" then
+                fr.count:SetText("Use")
+                fr.count:SetTextColor(0.40, 0.75, 0.75)
+                fr.zone:SetText(data.note or "")
                 fr.zone:SetTextColor(0.7, 0.7, 0.7)
             elseif data.category == "Bait" then
                 fr.count:SetText("Bait")
@@ -435,6 +440,7 @@ function SpotGuideView:RefreshRightPanel()
                 category = g.category,
                 targetFish = g.targetFish,
                 skillBonus = g.skillBonus,
+                note = g.note,
             })
         end
     elseif #gear > 0 and filterText and filterText ~= "" then
@@ -457,6 +463,7 @@ function SpotGuideView:RefreshRightPanel()
                         category = g.category,
                         targetFish = g.targetFish,
                         skillBonus = g.skillBonus,
+                        note = g.note,
                     })
                     visibleCount = visibleCount + 1
                 end

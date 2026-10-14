@@ -380,8 +380,133 @@ local function AddCategoryAchievements(items, category, showExpansion)
     end
 end
 
+-- Shared ownership test for the Coiled Isle reward list
+local function IsRewardOwned(r)
+    if r.checkType == "mount" then
+        return (ns.IsMountCollected(r.spellID))
+    elseif r.checkType == "pet" then
+        return ns.IsPetCollected(r.speciesID)
+    elseif r.checkType == "toy" then
+        return PlayerHasToy(r.itemID)
+    elseif r.checkType == "transmog" then
+        return ns.HasTransmogAppearance(r.itemID)
+    end
+    return C_Item.GetItemCount(r.itemID, true) > 0
+end
+
 local function BuildCollectionData()
     local items = {}
+
+    -- === Cursed Fishing — The Coiled Isle (Midnight 12.1) ===
+    local cf = ns.AchievementData.CURSED_FISHING
+    local cfDone, cfTotal = CountCategory("cursed_fishing")
+
+    local filamentInfo = C_CurrencyInfo.GetCurrencyInfo(cf.currencyID)
+    local filament = filamentInfo and filamentInfo.quantity or 0
+
+    table.insert(items, {
+        type = "header",
+        text = "Cursed Fishing (The Coiled Isle)",
+        progress = format("%d/%d", cfDone, cfTotal),
+        achievementID = cf.metaAchievementID,
+    })
+
+    -- Captain Tokka standing + Coiled Filament on hand
+    local rankIndex, rankName, rankCur, rankNeeded = ns.GetFriendshipRank(cf.factionID, cf.ranks)
+    local repText
+    if rankName then
+        repText = format("%s: %s (%d/%d)", cf.factionName, rankName, rankIndex or 0, #cf.ranks)
+        if rankNeeded then
+            repText = repText .. format(" \226\128\148 %s/%s", ns.Util.FormatCount(rankCur), ns.Util.FormatCount(rankNeeded))
+        end
+    else
+        repText = format("%s: not yet met", cf.factionName)
+    end
+    local venom = ns.GetRodVenom()
+    local venomText = venom and format("Venom: %s", ns.Util.FormatCount(venom)) or "Venom: \226\128\148"
+    table.insert(items, {
+        type = "info",
+        text = format("  %s  |  %s: %s  |  %s", repText, cf.currencyName, ns.Util.FormatCount(filament), venomText),
+    })
+
+    -- Cursed catches logged so far (14 achievement fish)
+    local cfCaught = 0
+    for _, itemID in ipairs(cf.achievementFish) do
+        if ns.db and ns.db.totals and ns.db.totals[itemID] then
+            cfCaught = cfCaught + 1
+        end
+    end
+
+    -- Toxic Trophies progress, read off the in-game journal's Catch Rank
+    local trophies, trophyTotal, journalScanned = ns.ProfessionData:CountAtRank(cf.trophyFish)
+    local trophyText = journalScanned
+        and format("Trophy rank: %d/%d", trophies, trophyTotal)
+        or "Trophy rank: open your Fishing Journal"
+
+    table.insert(items, {
+        type = "info",
+        text = format("  Cursed species logged: %d/%d  |  %s", cfCaught, #cf.achievementFish, trophyText),
+    })
+
+    AddCategoryAchievements(items, "cursed_fishing")
+
+    -- Treasures of the Damned — fished artifacts we can confirm from our own log
+    local treasureFound = 0
+    for _, t in ipairs(cf.treasures) do
+        if ns.db and ns.db.totals and ns.db.totals[t.itemID] then
+            treasureFound = treasureFound + 1
+        end
+    end
+    table.insert(items, {
+        type = "header",
+        text = "Treasures of the Damned",
+        progress = format("%d/%d logged", treasureFound, #cf.treasures),
+        achievementID = cf.treasureAchievementID,
+    })
+    for _, t in ipairs(cf.treasures) do
+        table.insert(items, {
+            type = "toy",
+            name = t.name,
+            itemID = t.itemID,
+            collected = (ns.db and ns.db.totals and ns.db.totals[t.itemID]) ~= nil,
+        })
+    end
+
+    -- Second Mate Sluggs' stock
+    local function SluggsLabel(r)
+        local label = r.name
+        if r.cost then
+            label = format("%s (%d filament)", label, r.cost)
+        end
+        if r.rank and r.rank > 1 then
+            label = format("%s \226\128\148 %s", label, cf.ranks[r.rank] or ("rank " .. r.rank))
+        end
+        return label
+    end
+
+    local sluggsOwned = 0
+    for _, r in ipairs(cf.rewards) do
+        if IsRewardOwned(r) then sluggsOwned = sluggsOwned + 1 end
+    end
+    table.insert(items, {
+        type = "header",
+        text = "Second Mate Sluggs",
+        progress = format("%d/%d", sluggsOwned, #cf.rewards),
+    })
+    for _, r in ipairs(cf.rewards) do
+        table.insert(items, {
+            type = "toy",
+            name = SluggsLabel(r),
+            itemID = r.itemID,
+            collected = IsRewardOwned(r),
+        })
+    end
+
+    -- Recipes and consumables — reference only, no ownership check is reliable
+    for _, r in ipairs(cf.supplies) do
+        table.insert(items, { type = "info", text = "  " .. SluggsLabel(r) })
+    end
+    table.insert(items, { type = "info", text = "" })
 
     -- === Abyss Anglers (Midnight 12.0.5) ===
     local PEARLS_CURRENCY = 3373

@@ -27,8 +27,9 @@ GearData.LURES = {
 
 -------------------------------------------------------------------------------
 -- Baits — Expansion-specific targeted baits
--- Format: { itemID, name, targetFish, zone, expansion, usage }
--- usage: "bait" (apply to pole, default), "summon" (use near water to attract)
+-- Format: { itemID, name, targetFish, zone, expansion, usage, note }
+-- usage: "bait" (apply to pole, default), "summon" (use near water to attract),
+--        "utility" (use for a fishing buff that isn't tied to one species)
 -------------------------------------------------------------------------------
 GearData.BAITS = {
     -- WoD
@@ -89,6 +90,14 @@ GearData.BAITS = {
     { itemID = 241147, name = "Blood Hunter Lure",           targetFish = "Blood Hunter",           expansion = "Midnight", usage = "summon" },
     { itemID = 241148, name = "Amani Angler's Ward",         targetFish = "Blood Hunter",           expansion = "Midnight", usage = "summon" },
     { itemID = 241149, name = "Ominous Octopus Lure",        targetFish = "Ominous Octopus",        expansion = "Midnight", usage = "summon" },
+
+    -- Midnight 12.1 — The Coiled Isle (Second Mate Sluggs, Coiled Filament)
+    { itemID = 241151, name = "Coiled Stargorger Lure",      targetFish = "Coiled Stargorger",      zone = "The Coiled Isle", expansion = "Midnight", usage = "summon",
+      note = "Turns an Atal'Utek pool into a Torrential Gorgerswarm \226\128\148 destroys the pool" },
+    { itemID = 281022, name = "Eerie Lure",                  targetFish = "Unique Coiled Isle fish", zone = "The Coiled Isle", expansion = "Midnight", usage = "utility",
+      mapIDs = { [2512] = true }, note = "Reveals unique fish on The Coiled Isle" },
+    { itemID = 278391, name = "Eerie Bauble",                targetFish = "Unknown",                zone = "The Coiled Isle", expansion = "Midnight", usage = "utility",
+      mapIDs = { [2512] = true }, note = "Throw into a Coiled Isle pool \226\128\148 at your own risk" },
 }
 
 -------------------------------------------------------------------------------
@@ -119,6 +128,8 @@ GearData.RODS = {
     { itemID = 244711, name = "Farstrider Hobbyist Rod",            quality = "UNCOMMON", expansion = "Midnight" },
     { itemID = 244712, name = "Sin'dorei Angler's Rod",             quality = "RARE",     expansion = "Midnight" },
     { itemID = 259179, name = "Sin'dorei Reeler's Rod",             quality = "EPIC",     expansion = "Midnight" },
+    { itemID = 244790, name = "The Coiled Huntress",                quality = "EPIC",     expansion = "Midnight",
+      source = "Second Mate Sluggs \226\128\148 Captain Tokka \"Bloodsworn Crew\". Turns you into a snake underwater in Midnight zones (breathing + swim speed), and banks venom for Coiled Filament." },
 }
 
 -------------------------------------------------------------------------------
@@ -146,6 +157,18 @@ GearData.LINES = {
     { itemID = 116117, name = "Rook's Lucky Fishin' Line",        expansion = "WoD" },
     { itemID = 153203, name = "Ancient Fishing Line",             expansion = "Legion" },
     { itemID = 262796, name = "Midnight Angler's Grand Line",     expansion = "Midnight" },
+
+    -- Midnight rod-line upgrade chains. 12.1 put the first rung of each on
+    -- Second Mate Sluggs for 10 Coiled Filament, so both chains are farmable now.
+    -- Bloomline = Fishing Skill, Glimmerline = Perception.
+    { itemID = 262792, name = "Shredded Bloomline",               expansion = "Midnight", source = "Second Mate Sluggs (10 Coiled Filament)" },
+    { itemID = 262793, name = "Stranded Bloomline",               expansion = "Midnight" },
+    { itemID = 262794, name = "Weak Bloomline",                   expansion = "Midnight" },
+    { itemID = 262795, name = "Angler's Bloomline",               expansion = "Midnight" },
+    { itemID = 262797, name = "Shredded Glimmerline",             expansion = "Midnight", source = "Second Mate Sluggs (10 Coiled Filament)" },
+    { itemID = 262798, name = "Stranded Glimmerline",             expansion = "Midnight" },
+    { itemID = 262799, name = "Weak Glimmerline",                 expansion = "Midnight" },
+    { itemID = 262800, name = "Angler's Glimmerline",             expansion = "Midnight" },
 }
 
 -------------------------------------------------------------------------------

@@ -420,7 +420,7 @@ FishData[238367] = { name = "Root Crab",                    quality = COMMON,   
 FishData[238365] = { name = "Sin'dorei Swarmer",            quality = COMMON,   expansion = "Midnight" }
 
 -- Uncommon fish
-FishData[238377] = { name = "Blood Hunter",                 quality = UNCOMMON, expansion = "Midnight" }
+FishData[238377] = { name = "Blood Hunter",                 quality = RARE,     expansion = "Midnight" }
 FishData[238369] = { name = "Bloomtail Minnow",             quality = UNCOMMON, expansion = "Midnight" }
 FishData[238375] = { name = "Fungalskin Pike",              quality = UNCOMMON, expansion = "Midnight" }
 FishData[238372] = { name = "Restored Songfish",            quality = UNCOMMON, expansion = "Midnight" }
@@ -437,6 +437,45 @@ FishData[238376] = { name = "Lucky Loa",                    quality = RARE,     
 FishData[238380] = { name = "Null Voidfish",                quality = RARE,     expansion = "Midnight" }
 FishData[238373] = { name = "Ominous Octopus",              quality = RARE,     expansion = "Midnight" }
 FishData[238379] = { name = "Warping Wise",                 quality = RARE,     expansion = "Midnight" }
+
+-------------------------------------------------------------------------------
+-- Midnight 12.1 — Cursed Fishing (The Coiled Isle)
+--
+-- The 14 species below are the criteria for "Angler of The Coiled Isle" (63629).
+-- Cursed waters only open at a spot once a Curse Surge there has been cleared,
+-- and that unlock is warband-wide (spell 1311030).
+-------------------------------------------------------------------------------
+-- Common fish
+FishData[274587] = { name = "Spotted Killifish",            quality = COMMON,   expansion = "Midnight" }
+FishData[274588] = { name = "Toxic Tlhapi",                 quality = COMMON,   expansion = "Midnight" }
+FishData[274592] = { name = "Dirty Darter",                 quality = COMMON,   expansion = "Midnight" }
+FishData[274594] = { name = "Polluted Puffer",              quality = COMMON,   expansion = "Midnight" }
+FishData[279091] = { name = "Oozing Goby",                  quality = COMMON,   expansion = "Midnight" }
+FishData[279093] = { name = "Giggling Skull",               quality = COMMON,   expansion = "Midnight" }
+FishData[279100] = { name = "Many-Eyed Flounder",           quality = COMMON,   expansion = "Midnight" }
+FishData[279105] = { name = "Twin-Headed Snipefish",        quality = COMMON,   expansion = "Midnight" }
+
+-- Uncommon fish
+FishData[274590] = { name = "Sulfurous Sludgefish",         quality = UNCOMMON, expansion = "Midnight" }
+
+-- Rare fish
+FishData[274589] = { name = "Ula'tek Snakehead",            quality = RARE,     expansion = "Midnight" }
+FishData[274591] = { name = "Coiled Stargorger",            quality = RARE,     expansion = "Midnight" }
+FishData[274593] = { name = "Blightswarmer",                quality = RARE,     expansion = "Midnight" }
+FishData[279094] = { name = "Grotesque Sturgeon",           quality = RARE,     expansion = "Midnight" }
+FishData[279106] = { name = "Loathsome Anglerfish",         quality = RARE,     expansion = "Midnight" }
+
+-- Cursed Oddities — the starfish line salvaged from the venom (not achievement fish).
+-- 25 Beached Asteroid -> 1 Bulbous Benthos, 5 Bulbous Benthos -> 1 Pristine Polygon.
+FishData[274596] = { name = "Beached Asteroid",             quality = COMMON,   expansion = "Midnight" }
+FishData[274597] = { name = "Bulbous Benthos",              quality = UNCOMMON, expansion = "Midnight" }
+FishData[274595] = { name = "Pristine Polygon",             quality = RARE,     expansion = "Midnight" }
+
+-- Ultra-rare cursed catch (not an achievement criterion)
+FishData[278848] = { name = "Pustulent Blightswarmer",      quality = RARE,     expansion = "Midnight" }
+
+-- Treasure by-catch — Grisly Cod Pool, starts the Amani Privateer's Cache chain
+FishData[265525] = { name = "Grisly Morsel",                quality = COMMON,   expansion = "Midnight" }
 
 -------------------------------------------------------------------------------
 -- Helper: get fish info (fills from cache if name unknown)
